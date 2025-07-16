@@ -28,6 +28,11 @@ public final class TradeAcceptUseCase extends TradeUseCase {
      * @param receptorName the name of the player who sent the trade request
      */
     public void submit(@NonNull Player sender, @NonNull String receptorName) {
+        if (receptorName.isEmpty()) {
+            sender.sendMessage(MessageAssets.TRADE_COMMAND_USAGE.build());
+            return;
+        }
+
         // Check if the sender is already trading with someone else.
         if (this.transactionRegistry.findByPlayer(sender.getUniqueId()) != null) {
             sender.sendMessage(MessageAssets.TRADE_SENDER_ALREADY_TRADING.build());
