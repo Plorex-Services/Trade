@@ -3,8 +3,8 @@ import it.bitrule.plorex.script.CommonPlugin
 import it.bitrule.plorex.script.PublishPlugin
 
 plugins {
-    id 'java'
     id 'maven-publish'
+    id 'java'
     id 'idea'
     alias libs.plugins.shadow
     alias libs.plugins.nukkitPluginYAML
@@ -17,9 +17,16 @@ apply plugin: CommonPlugin
 
 repositories {
     mavenLocal()
+
+    maven {
+        name = 'papermc'
+        url = 'https://repo.papermc.io/repository/maven-public/'
+    }
 }
 
 dependencies {
+    compileOnly 'io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT'
+
     compileOnly(libs.annotations.get())
 
     compileOnly(libs.lombok.get())
