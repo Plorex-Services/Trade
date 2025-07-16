@@ -1,8 +1,7 @@
 package it.bitrule.trade.command;
 
 import it.bitrule.trade.MessageAssets;
-import it.bitrule.trade.Trade;
-import it.bitrule.trade.manager.TradeManager;
+import it.bitrule.trade.usecase.TradeRequestUseCase;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
@@ -13,16 +12,19 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedList;
-import java.util.List;
 
 public final class TradeCommand extends Command {
 
-    private final @NonNull TradeManager tradeManager;
+    /**
+     * This is the use case that handles the logic when a
+     * player requests a trade with another player.
+     */
+    private final @NonNull TradeRequestUseCase requestUseCase;
 
-    TradeCommand(@NonNull TradeManager tradeManager) {
+    TradeCommand(@NonNull TradeRequestUseCase requestUseCase) {
         super("trade", "Trade with another player", "/trade <player> | /trade accept <player>", new LinkedList<>());
 
-        this.tradeManager = tradeManager;
+        this.requestUseCase = requestUseCase;
     }
 
     /**
@@ -51,7 +53,7 @@ public final class TradeCommand extends Command {
         if (args[0].equals("accept")) {
             this.tradeManager.accept((Player) sender, args.length > 1 ? args[1] : "");
         } else {
-            this.tradeManager.request((Player) sender, args[0]);
+            this.requestUseCase.submit((Player) sender, args[0]);
         }
 
         return false;

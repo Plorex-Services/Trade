@@ -17,6 +17,13 @@ public enum MessageAssets {
 
     TRADE_COMMAND_USAGE("trade.command-usage"),
 
+    PLAYER_NOT_ONLINE("player.not_online", "target"),
+
+    TRADE_CANNOT_TRADE_YOURSELF("trade.cannot_trade_yourself"),
+    TRADE_SENDER_ALREADY_TRADING("trade.sender_already_trading", "target"),
+    TRADE_RECEPTOR_ALREADY_TRADING("trade.receptor_already_trading", "target"),
+    TRADE_SENDER_ALREADY_SENT_REQUEST("trade.sender_already_sent_request", "target"),
+    TRADE_RECEPTOR_ALREADY_SENT_REQUEST("trade.receptor_already_sent_request", "target"),
     TRADE_REQUEST_SENT("trade.request_sent", "recipient"),
     TRADE_REQUEST_RECEIVED("trade.request_received.message", "sender", "accept", "deny"),
     TRADE_REQUEST_RECEIVED_ACCEPT_HOVER("trade.request_received.accept_hover", "sender"),

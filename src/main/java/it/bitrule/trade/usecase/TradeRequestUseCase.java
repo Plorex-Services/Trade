@@ -1,46 +1,17 @@
 package it.bitrule.trade.usecase;
 
+import it.bitrule.trade.MessageAssets;
 import it.bitrule.trade.registry.RequestsRegistry;
 import it.bitrule.trade.registry.TransactionRegistry;
 import lombok.NonNull;
-
-import java.util.UUID;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.JoinConfiguration;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 public final class TradeRequestUseCase extends TradeUseCase {
-
-    public enum State {
-        /**
-         * This indicates that the sender is already trading with someone else.
-         */
-        SENDER_ALREADY_TRADING,
-        /**
-         * This indicates that the receptor is already trading with someone else.
-         */
-        RECEPTOR_ALREADY_TRADING,
-
-        /**
-         * This indicates that the receptor is not online
-         */
-        NO_RECEPTOR_ONLINE,
-        /**
-         * This indicates that the sender has already sent a request to the receptor.
-         */
-        SENDER_ALREADY_SENT_REQUEST,
-        /**
-         * This indicates that the receptor has already sent a request to the sender,
-         * so the sender needs to accept the request, not send a new one.
-         */
-        RECEPTOR_ALREADY_SENT_REQUEST,
-        /**
-         * This indicates that the sender is trying to trade with themselves,
-         * which is not allowed.
-         */
-        TRYING_TO_TRADE_SELF,
-        /**
-         * This indicates that the request was successfully registered
-         */
-        OK
-    }
 
     public TradeRequestUseCase(@NonNull TransactionRegistry transactionRegistry, @NonNull RequestsRegistry requestsRegistry) {
         super(transactionRegistry, requestsRegistry);
@@ -51,36 +22,69 @@ public final class TradeRequestUseCase extends TradeUseCase {
      * This method checks various conditions to ensure that the trade request can be processed,
      * such as whether the sender and receptor are online, whether they are already trading with someone else,
      * and whether they have already sent or received trade requests from each other.
-     * @param senderId the UUID of the player sending the trade request
-     * @param receptorId the UUID of the player receiving the trade request
-     * @return the state of the trade request submission
+     * @param sender the player who is sending the trade request
+     * @param receptorName the name of the player who is receiving the trade request
      */
-    public @NonNull State submit(@NonNull UUID senderId, @NonNull UUID receptorId) {
+    public void submit(@NonNull Player sender, @NonNull String receptorName) {
         // Check if the sender is already trading with someone else.
-        if (this.transactionRegistry.findByPlayer(senderId) != null)
-            return State.SENDER_ALREADY_TRADING;
+        if (this.transactionRegistry.findByPlayer(sender.getUniqueId()) != null) {
+            sender.sendMessage(MessageAssets.TRADE_SENDER_ALREADY_TRADING.build());
+            return;
+        }
 
-        // Check if the receptor is trying to trade with themselves.
-        if (receptorId.equals(senderId))
-            return State.TRYING_TO_TRADE_SELF;
+        // Check if the receptor is online.
+        Player receptor = Bukkit.getPlayerExact(receptorName);
+        if (receptor == null || !receptor.isConnected()) {
+            sender.sendMessage(MessageAssets.PLAYER_NOT_ONLINE.build(receptorName));
+            return;
+        }
+
+        // Check if the sender is trying to trade with themselves.
+        if (receptor.getUniqueId().equals(sender.getUniqueId())) {
+            sender.sendMessage(MessageAssets.TRADE_CANNOT_TRADE_YOURSELF.build());
+            return;
+        }
 
         // Check if the receptor is already trading with someone else.
-        if (this.transactionRegistry.findByPlayer(receptorId) != null)
-            return State.RECEPTOR_ALREADY_TRADING;
+        if (this.transactionRegistry.findByPlayer(receptor.getUniqueId()) != null) {
+            sender.sendMessage(MessageAssets.TRADE_RECEPTOR_ALREADY_TRADING.build());
+            return;
+        }
 
-        // If the receptor already has a pending request from the sender,
-        // we return ALREADY_SENT_REQUEST state.
-        if (this.requestsRegistry.has(senderId, receptorId))
-            return State.SENDER_ALREADY_SENT_REQUEST;
+        // Check if the sender has already sent a request to the receptor.
+        if (this.requestsRegistry.has(sender.getUniqueId(), receptor.getUniqueId())) {
+            sender.sendMessage(MessageAssets.TRADE_SENDER_ALREADY_SENT_REQUEST.build(receptorName));
+            return;
+        }
 
-        // If the sender already has a pending request from the receptor,
-        // we return ALREADY_SENT_REQUEST state.
-        if (this.requestsRegistry.has(receptorId, senderId))
-            return State.RECEPTOR_ALREADY_SENT_REQUEST;
+        // Check if the receptor has already sent a request to the sender.
+        if (this.requestsRegistry.has(receptor.getUniqueId(), sender.getUniqueId())) {
+            sender.sendMessage(MessageAssets.TRADE_RECEPTOR_ALREADY_SENT_REQUEST.build(receptorName));
+            return;
+        }
 
         // Register the request in the registry.
-        this.requestsRegistry.register(senderId, receptorId);
+        this.requestsRegistry.register(sender.getUniqueId(), receptor.getUniqueId());
 
-        return State.OK;
+        // Notify the receptor about the new trade request sending a message.
+        receptor.sendMessage(Component.join(
+                JoinConfiguration.newlines(),
+                MessageAssets.TRADE_REQUEST_RECEIVED.buildMany(
+                        sender.getName(),
+                        MessageAssets.internal("trade.request_received.accept_prompt")
+                                .hoverEvent(HoverEvent.showText(
+                                        MessageAssets.TRADE_REQUEST_RECEIVED_ACCEPT_HOVER.build(sender.getName())
+                                ))
+                                .clickEvent(ClickEvent.runCommand("/trade accept " + sender.getName()))
+                        ,
+                        MessageAssets.internal("trade.request_received.deny_prompt")
+                                .hoverEvent(HoverEvent.showText(
+                                        MessageAssets.TRADE_REQUEST_RECEIVED_DENY_HOVER.build(sender.getName())
+                                ))
+                                .clickEvent(ClickEvent.runCommand("/trade deny " + sender.getName()))
+                )
+        ));
+
+        sender.sendMessage(MessageAssets.TRADE_REQUEST_SENT.build(receptorName));
     }
 }
