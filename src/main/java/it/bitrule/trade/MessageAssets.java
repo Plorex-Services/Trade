@@ -2,6 +2,7 @@ package it.bitrule.trade;
 
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -38,7 +39,15 @@ public enum MessageAssets {
     TRANSACTION_CANCELLED("transaction_cancelled", "player"),
     TRANSACTION_WAS_CANCELLED("transaction_was_cancelled", "player"),
 
+    ENDING_COUNTDOWN("ending_countdown", "player", "remaining"),
+
     MENU_TITLE("menu.title", "player"),
+
+    MENU_STATE_OPTION_LORE_SELF_NOT_DONE("menu.state_option.lore.self.not_done"),
+    MENU_STATE_OPTION_LORE_SELF_DONE("menu.state_option.lore.self.done"),
+    MENU_STATE_OPTION_LORE_SELF_DONE_COUNTDOWN("menu.state_option.lore.self.done_countdown", "countdown"),
+    MENU_STATE_OPTION_LORE_SELF_DONE_WAITING("menu.state_option.lore.self.done_waiting", "player"),
+
     MENU_STATE_OPTION_DISPLAY_NAME_OTHER_NOT_DONE("menu.state_option.display_name.other_not_done", "player"),
     MENU_STATE_OPTION_LORE_OTHER_NOT_DONE("menu.state_option.lore.other.not_done", "player"),
     MENU_STATE_OPTION_DISPLAY_NAME_OTHER_DONE("menu.state_option.display_name.other_done", "player"),
@@ -52,6 +61,8 @@ public enum MessageAssets {
     private final static @NonNull Function<String, Component> NO_PATH = path -> Component.text("<Missing key '", NamedTextColor.WHITE)
             .append(Component.text(path).color(NamedTextColor.GREEN))
             .append(Component.text("'>", NamedTextColor.WHITE));
+
+    private static @Nullable Component PREFIX_COMPONENT = null;
 
     private final @NonNull String path;
     private final @NonNull String[] params;
@@ -112,7 +123,12 @@ public enum MessageAssets {
             throw new IllegalArgumentException("The replacements length is less than the params length. Expected: " + paramCount + ", got: " + replacements.length);
         }
 
-        if (paramCount == 0) return MiniMessage.miniMessage().deserialize(output);
+        if (paramCount == 0)
+            return MiniMessage.miniMessage()
+                    .deserialize(output)
+                    .replaceText(builder -> builder.matchLiteral("<trade_prefix>")
+                            .replacement(PREFIX_COMPONENT != null ? PREFIX_COMPONENT : NO_PATH.apply("prefix"))
+                    );
 
         for (int i = 0; i < paramCount; i++) {
             Object replacement = replacements[i];
@@ -123,7 +139,11 @@ public enum MessageAssets {
             output = output.replace("%" + this.params[i] + "%", replacement instanceof String ? (String) replacement : replacement.toString());
         }
 
-        return MiniMessage.miniMessage().deserialize(output);
+        return MiniMessage.miniMessage()
+                .deserialize(output)
+                .replaceText(builder -> builder.matchLiteral("<trade_prefix>")
+                        .replacement(PREFIX_COMPONENT != null ? PREFIX_COMPONENT : NO_PATH.apply("prefix"))
+                );
     }
 
     /**
@@ -142,6 +162,19 @@ public enum MessageAssets {
         return NO_PATH.apply(path);
     }
 
+    public static @NonNull List<Component> replace(@NonNull List<Component> components, @NonNull List<Component> replacements) {
+        List<Component> output = new ArrayList<>();
+        for (Component component : components) {
+            if (!((TextComponent) component).content().contains("%content%")) {
+                output.add(component);
+            } else {
+                output.addAll(replacements);
+            }
+        }
+
+        return output;
+    }
+
     /**
      * This method is used to adjust the messages.yml file that is used in the plugin.
      * @param yamlFile the YamlFile instance that contains the messages
@@ -152,5 +185,9 @@ public enum MessageAssets {
         }
 
         messagesYamlFile = yamlFile;
+
+        PREFIX_COMPONENT = Optional.ofNullable(messagesYamlFile.getString("prefix"))
+                .map(MiniMessage.miniMessage()::deserialize)
+                .orElse(NO_PATH.apply("prefix"));
     }
 }

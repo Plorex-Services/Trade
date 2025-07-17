@@ -1,3 +1,5 @@
+prefix: "<gradient:#9483FD:#80CFFD><b>Tradeos</b></gradient> <gray>►</gray> "
+
 command_usage:
   - "<red>Comando incorrecto. Puedes utilizar los siguientes comandos:</red>"
   - "<gray>/trade</gray> <white><player></white> <aqua>- Envía una solicitud de comercio al jugador especificado.</aqua>"

@@ -11,6 +11,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -70,8 +71,16 @@ public final class TradeCancelUseCase extends TradeUseCase {
             recipientId = transaction.getSender();
         }
 
+
+        BukkitRunnable bukkitRunnable = transaction.getBukkitRunnable();
+        boolean cancelledRunnable = bukkitRunnable != null && !bukkitRunnable.isCancelled();
+        if (cancelledRunnable) bukkitRunnable.cancel();
+
         Player recipient = Bukkit.getPlayer(recipientId);
         if (recipient == null || !recipient.isConnected()) return;
+
+        if (cancelledRunnable)
+            this.logger.warning("[Receptor - Trade] Cancelled the countdown for the trade between " + player.getName() + " and " + recipient.getName());
 
         player.sendMessage(
                 MessageAssets.TRANSACTION_CANCELLED.build(

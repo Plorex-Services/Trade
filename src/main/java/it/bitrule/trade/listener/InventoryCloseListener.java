@@ -11,6 +11,11 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 
 import java.util.Optional;
 
+/**
+ * Why not use the handler from the {@link dev.triumphteam.gui.guis.Gui}?
+ * Because I don't want to keep a static field of the cancelUseCase, so I handle the inventory close event
+ * to cancel trades when a player closes their inventory.
+ */
 @RequiredArgsConstructor
 public final class InventoryCloseListener implements Listener {
 
@@ -21,7 +26,7 @@ public final class InventoryCloseListener implements Listener {
     private final @NonNull TradeCancelUseCase cancelUseCase;
 
     @EventHandler
-    public void onInventoryCloseEvent(@NonNull InventoryCloseEvent ev) {
+    public void onInventoryCloseEvent(@NonNull final InventoryCloseEvent ev) {
         if (!(ev.getInventory().getHolder() instanceof BaseGui)) return;
 
         Player player = Optional.of(ev.getPlayer())

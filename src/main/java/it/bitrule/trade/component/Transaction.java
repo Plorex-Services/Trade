@@ -2,6 +2,8 @@ package it.bitrule.trade.component;
 
 import lombok.Data;
 import lombok.NonNull;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -54,6 +56,8 @@ public final class Transaction {
      * So this means that both players have confirmed their part of the trade and the countdown has expired.
      */
     private boolean ended = false;
+
+    private @Nullable BukkitRunnable bukkitRunnable = null;
 
     /**
      * Returns the reader state of the player in the transaction.

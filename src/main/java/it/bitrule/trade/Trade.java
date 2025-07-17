@@ -2,6 +2,7 @@ package it.bitrule.trade;
 
 import dev.triumphteam.gui.builder.item.ItemBuilder;
 import dev.triumphteam.gui.guis.Gui;
+import dev.triumphteam.gui.guis.GuiItem;
 import it.bitrule.trade.command.TradeCommand;
 import it.bitrule.trade.component.Transaction;
 import it.bitrule.trade.listener.InventoryCloseListener;
@@ -83,6 +84,19 @@ public final class Trade extends JavaPlugin {
                         .name(Component.empty())
                         .lore(Component.empty())
                         .asGuiItem()
+        );
+
+        gui.setItem(
+                12,
+                new GuiItem(
+                        TradeMenuUseCase.getSelfReadyItemStack(receptorName, 6),
+                        clickEvent -> {
+                            if (transaction.isCancelled() || transaction.isEnded()) {
+                                clickEvent.setCancelled(true);
+                            } else if (menuUseCase != null) {
+                                menuUseCase.executeReady(player, transaction);
+                            }
+                        })
         );
 
         boolean isRecipientDone = player.getUniqueId().equals(transaction.getSender()) ? transaction.isReceptorReady() : transaction.isSenderReady();
