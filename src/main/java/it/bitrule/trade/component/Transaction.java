@@ -2,10 +2,7 @@ package it.bitrule.trade.component;
 
 import lombok.Data;
 import lombok.NonNull;
-import org.bukkit.inventory.ItemStack;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 @Data
@@ -26,13 +23,13 @@ public final class Transaction {
     private final @NonNull UUID receptor;
 
     /**
-     * If the sender has marked their part of the trade as done.
+     * If the sender has marked their part of the trade as ready.
      */
-    private boolean senderDone = false;
+    private boolean senderReady = false;
     /**
-     * If the receptor has marked their part of the trade as done.
+     * If the receptor has marked their part of the trade as ready.
      */
-    private boolean receptorDone = false;
+    private boolean receptorReady = false;
 
     /**
      * This flag indicates whether the sender is on queue to finish their
@@ -64,9 +61,9 @@ public final class Transaction {
      * @return true if the player has marked their part of the trade as done, false otherwise
      */
     public boolean getReadyState(@NonNull UUID playerId) {
-        if (playerId.equals(this.sender)) return this.senderDone;
+        if (playerId.equals(this.sender)) return this.senderReady;
 
-        return this.receptorDone;
+        return this.receptorReady;
     }
 
     /**

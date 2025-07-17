@@ -83,7 +83,7 @@ public final class Trade extends JavaPlugin {
                         .asGuiItem()
         );
 
-        boolean isRecipientDone = player.getUniqueId().equals(transaction.getSender()) ? transaction.isReceptorDone() : transaction.isSenderDone();
+        boolean isRecipientDone = player.getUniqueId().equals(transaction.getSender()) ? transaction.isReceptorReady() : transaction.isSenderReady();
 
         MessageAssets otherDoneDisplayName = isRecipientDone
                 ? MessageAssets.MENU_STATE_OPTION_DISPLAY_NAME_OTHER_DONE

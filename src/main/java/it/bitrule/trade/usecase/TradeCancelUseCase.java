@@ -53,8 +53,8 @@ public final class TradeCancelUseCase extends TradeUseCase {
 
         transaction.setCancelled(true);
 
-        transaction.setReceptorDone(false);
-        transaction.setSenderDone(false);
+        transaction.setReceptorReady(false);
+        transaction.setSenderReady(false);
 
         // After marking the transaction as cancelled and resetting the done flags,
         // we need to give back the items to the players involved in the trade.
