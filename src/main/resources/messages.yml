@@ -1,0 +1,80 @@
+command_usage:
+  - "<red>Comando incorrecto. Puedes utilizar los siguientes comandos:</red>"
+  - "<gray>/trade</gray> <white><player></white> <aqua>- Envía una solicitud de comercio al jugador especificado.</aqua>"
+  - "<gray>/trade accept</gray> <white><player></white> <aqua>- Acepta una solicitud de comercio pendiente del jugador especificado.</aqua>"
+  - "<gray>/trade deny</gray> <white><player></white> <aqua>- Rechaza una solicitud de comercio pendiente del jugador especificado.</aqua>"
+
+player_not_online: "<red>No se ha encontrado al jugador %player%.</red>"
+cannot_trade_yourself: "<red>No puedes comerciar contigo mismo.</red>"
+sender_already_trading: "<red>Ya estás comerciando con alguien mas.</red>"
+receptor_already_trading: "<red>El jugador %player% ya está comerciando con alguien más.</red>"
+
+sender_already_sent_request: "<red>Ya le has enviado una solicitud de comercio al jugador %player%.</red>"
+receptor_already_sent_request: "<red>El jugador %player% ya te ha enviado una solicitud de comercio.</red> <gold>Utiliza <green>/trade accept %target%</green> para aceptar su solicitud.</gold>"
+
+request_sent: "<trade_prefix><white>Has <dark_green>enviado</dark_green> una solicitud de comercio a <yellow>%player%</yellow>.</white>"
+request_received:
+  message:
+    - "<trade_prefix><white>El jugador <dark_green>%sender%</dark_green> quiere intercambiar contigo.</white>"
+    - "  <dark_gray>[</dark_gray>%accept% <dark_gray>|</dark_gray> %deny%<dark_gray>]</dark_gray>"
+  accept_prompt: "<green>Aceptar</green>"
+  deny_prompt: "<red>Rechazar</red>"
+
+no_request_found: "<red>No se ha encontrado ninguna solicitud de comercio pendiente con el jugador %player%.</red>"
+request_accepted: "<trade_prefix><white>Has <dark_green>aceptado</dark_green> la petición de intercambio con <yellow>%player%</yellow>.</white>"
+request_was_accepted: "<trade_prefix><white>La petición de intercambio enviada a <yellow>%player%</yellow> fue <dark_green>aceptada</dark_green>.</white>"
+
+transaction_cancelled: "<trade_prefix><white>La transacción de comercio con <yellow>%player%</yellow> ha sido <dark_red>cancelada</dark_red>.</white>"
+transaction_was_cancelled: "<trade_prefix><yellow>%player%</yellow> <white>ha <dark_red>cancelado</dark_red> la transacción de comercio.</white>"
+
+transaction_confirmed: "<trade_prefix><white>El comercio con <yellow>%player%</yellow> ha sido <dark_green>confirmado</dark_green>.</white>"
+transaction_was_confirmed: "<trade_prefix><yellow>%player%</yellow> <white>ha marcado cómo <dark_green>confirmado</dark_green> el comercio.</white>"
+
+transaction_completed: "<trade_prefix><white>El comercio con <yellow>%player%</yellow> ha sido <dark_green>completado</dark_green>.</white>"
+ending_countdown: "<trade_prefix><white>El comercio con <yellow>%player%</yellow> se completará en <dark_green>%remaining%</dark_green>.</white>"
+
+menu:
+  title: "<dark_gray>Intercambio con <yellow>%player%</yellow></dark_gray>"
+  state_option:
+    display_name:
+      self_done: "<green>¡Ya estás listo!</green>"
+      self_not_done: "<red>No estás listo</red>"
+      other_done: "<green>%player% está listo!</green>"
+      other_not_done: "<red>%player% no está listo</red>"
+    lore:
+      self:
+        not_done:
+          - "<dark_gray>Estado</dark_gray>"
+          - " <gray>Cuando estés listo para</gray> "
+          - " <gray>terminar el intercambio, haz click</gray> "
+          - " <gray>en esta opción.</gray> "
+          - ""
+          - "<dark_red><bold>NOTA<reset> "
+          - " <gray>Cuando ambos jugadores</gray> "
+          - " <gray>hayan hecho click en esta opción,</gray> "
+          - " <gray>empezará la cuenta atrás</gray> "
+          - " <gray>para finalizar el intercambio.</gray> "
+        done:
+          - "<dark_gray>Estado</dark_gray>"
+          - " <gray>Estás listo para dar por</gray> "
+          - " <gray>terminado el intercambio</gray> "
+          - ""
+          - "%content%"
+          - ""
+          - " <red>Haz click para cancelar</red>"
+        done_countdown:
+          - " <dark_red><bold>IMPORTANTE<reset> "
+          - " <gray>La transacción terminará en<gray> "
+          - " <red>%countdown%</red> "
+        done_waiting:
+          - " <gray>Esperando a que %player%</gray> "
+          - " <gray>acepte el intercambio.</gray> "
+      other:
+        not_done:
+          - "<dark_gray>Estado</dark_gray>"
+          - " <gray>%player% no está listo</gray> "
+          - " <gray>para terminar el intercambio</gray> "
+        done:
+          - "<dark_gray>Estado</dark_gray>"
+          - " <gold>%player%</gold> <gray>está listo</gray> "
+          - " <gray>para terminar el intercambio</gray> "
