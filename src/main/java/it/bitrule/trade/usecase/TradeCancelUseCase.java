@@ -42,6 +42,9 @@ public final class TradeCancelUseCase extends TradeUseCase {
         Transaction transaction = this.transactionRegistry.findByPlayer(player.getUniqueId());
         if (transaction == null) return;
 
+        // If the transaction is already ended, there's nothing to do.
+        if (transaction.isEnded()) return;
+
         // If the transaction is already cancelled, there's nothing to do.
         // this helps to prevent cancelling a transaction multiple times.
         if (transaction.isCancelled()) return;
