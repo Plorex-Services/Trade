@@ -12,11 +12,16 @@ import org.bukkit.entity.Player;
 
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.logging.Logger;
 
 public final class TradeAcceptUseCase extends TradeUseCase {
 
-    public TradeAcceptUseCase(@NonNull TransactionRegistry transactionRegistry, @NonNull RequestsRegistry requestsRegistry) {
-        super(transactionRegistry, requestsRegistry);
+    public TradeAcceptUseCase(
+            @NonNull TransactionRegistry transactionRegistry,
+            @NonNull RequestsRegistry requestsRegistry,
+            @NonNull Logger logger
+    ) {
+        super(transactionRegistry, requestsRegistry, logger);
     }
 
     /**

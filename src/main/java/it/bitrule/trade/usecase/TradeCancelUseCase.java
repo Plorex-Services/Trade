@@ -13,11 +13,16 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.UUID;
+import java.util.logging.Logger;
 
 public final class TradeCancelUseCase extends TradeUseCase {
 
-    public TradeCancelUseCase(@NonNull TransactionRegistry transactionRegistry, @NonNull RequestsRegistry requestsRegistry) {
-        super(transactionRegistry, requestsRegistry);
+    public TradeCancelUseCase(
+            @NonNull TransactionRegistry transactionRegistry,
+            @NonNull RequestsRegistry requestsRegistry,
+            @NonNull Logger logger
+    ) {
+        super(transactionRegistry, requestsRegistry, logger);
     }
 
     public void submit(@NonNull Player player, @NonNull Inventory closingInventory) {
@@ -68,6 +73,12 @@ public final class TradeCancelUseCase extends TradeUseCase {
         if (!(recipientInventory.getHolder() instanceof BaseGui)) return;
 
         this.giveBackItems(recipient, recipientInventory);
+
+        if (recipientInventory.close() == 0) {
+            this.logger.warning("[Receptor - Trade] Unexpected behavior... Nobody was viewing the inventory of " + recipient.getName());
+        } else {
+            this.logger.info("[Receptor - Trade] Closed inventory of " + recipient.getName() + " after cancelling the trade.");
+        }
     }
 
     private void giveBackItems(@NonNull Player player, @NonNull Inventory inventory) {

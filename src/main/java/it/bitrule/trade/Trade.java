@@ -25,7 +25,7 @@ import java.util.Arrays;
 public final class Trade extends JavaPlugin {
 
     private static final int[] GLASS_SLOT = new int[]{
-            0,1,2,4,6,7,8,
+            0,1,2,3,4,5,6,7,8,
             11,13,15,
             20,21,23,24,
             30,31,32,
@@ -49,15 +49,15 @@ public final class Trade extends JavaPlugin {
         TransactionRegistry transactionRegistry = new TransactionRegistry();
         RequestsRegistry requestsRegistry = new RequestsRegistry();
 
-        TradeCancelUseCase cancelUseCase = new TradeCancelUseCase(transactionRegistry, requestsRegistry);
+        TradeCancelUseCase cancelUseCase = new TradeCancelUseCase(transactionRegistry, requestsRegistry, this.getLogger());
         this.getServer().getPluginManager().registerEvents(new InventoryCloseListener(cancelUseCase), this);
         this.getServer().getPluginManager().registerEvents(new PlayerQuitListener(cancelUseCase), this);
 
         this.getServer().getCommandMap().register(
                 "trade",
                 new TradeCommand(
-                        new TradeRequestUseCase(transactionRegistry, requestsRegistry),
-                        new TradeAcceptUseCase(transactionRegistry, requestsRegistry)
+                        new TradeRequestUseCase(transactionRegistry, requestsRegistry, this.getLogger()),
+                        new TradeAcceptUseCase(transactionRegistry, requestsRegistry, this.getLogger())
                 )
         );
     }

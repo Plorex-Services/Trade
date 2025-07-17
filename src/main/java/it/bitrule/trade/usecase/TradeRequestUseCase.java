@@ -11,10 +11,16 @@ import net.kyori.adventure.text.event.HoverEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import java.util.logging.Logger;
+
 public final class TradeRequestUseCase extends TradeUseCase {
 
-    public TradeRequestUseCase(@NonNull TransactionRegistry transactionRegistry, @NonNull RequestsRegistry requestsRegistry) {
-        super(transactionRegistry, requestsRegistry);
+    public TradeRequestUseCase(
+            @NonNull TransactionRegistry transactionRegistry,
+            @NonNull RequestsRegistry requestsRegistry,
+            @NonNull Logger logger
+    ) {
+        super(transactionRegistry, requestsRegistry, logger);
     }
 
     /**

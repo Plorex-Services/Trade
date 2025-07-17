@@ -5,6 +5,8 @@ import it.bitrule.trade.registry.TransactionRegistry;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
+import java.util.logging.Logger;
+
 @RequiredArgsConstructor
 abstract class TradeUseCase {
 
@@ -16,4 +18,8 @@ abstract class TradeUseCase {
      * This registry is used to manage trade requests between players.
      */
     protected final @NonNull RequestsRegistry requestsRegistry;
+    /**
+     * This logger is used to log messages related to trade operations.
+     */
+    protected final @NonNull Logger logger;
 }
