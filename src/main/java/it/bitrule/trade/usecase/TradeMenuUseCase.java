@@ -193,6 +193,14 @@ public final class TradeMenuUseCase extends TradeUseCase {
                 ));
             }
         }
+
+        if (changedItems.isEmpty()) {
+            // If there are no changes, we return early.
+            return;
+        }
+
+        this.logger.info("Synchronizing trade GUI for player " + player.getName() + " in transaction " + transaction.getId());
+        this.logger.info("Changed items: " + changedItems);
     }
 
     private int slotToViewer(int slot) {

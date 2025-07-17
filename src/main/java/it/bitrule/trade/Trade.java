@@ -55,9 +55,11 @@ public final class Trade extends JavaPlugin {
 
         menuUseCase = new TradeMenuUseCase(transactionRegistry, requestsRegistry, this.getLogger());
 
-        TradeCancelUseCase cancelUseCase = new TradeCancelUseCase(transactionRegistry, requestsRegistry, this.getLogger());
-        this.getServer().getPluginManager().registerEvents(new InventoryCloseListener(cancelUseCase), this);
-        this.getServer().getPluginManager().registerEvents(new PlayerQuitListener(cancelUseCase), this);
+        this.getServer().getPluginManager().registerEvents(new PlayerQuitListener(requestsRegistry), this);
+        this.getServer().getPluginManager().registerEvents(
+                new InventoryCloseListener(new TradeCancelUseCase(transactionRegistry, requestsRegistry, this.getLogger())),
+                this
+        );
 
         this.getServer().getCommandMap().register(
                 "trade",

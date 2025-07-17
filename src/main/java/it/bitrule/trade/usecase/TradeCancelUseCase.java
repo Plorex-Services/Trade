@@ -100,7 +100,6 @@ public final class TradeCancelUseCase extends TradeUseCase {
     }
 
     private void giveBackItems(@NonNull Player player, @NonNull Inventory inventory) {
-
         for (int slot : Trade.VIEWER_SLOT) {
             ItemStack itemStack = inventory.getItem(slot);
             if (itemStack == null || itemStack.isEmpty()) continue;
