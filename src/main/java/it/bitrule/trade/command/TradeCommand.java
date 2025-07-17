@@ -27,7 +27,7 @@ public final class TradeCommand extends Command {
      */
     private final @NonNull TradeAcceptUseCase acceptUseCase;
 
-    TradeCommand(
+    public TradeCommand(
             @NonNull TradeRequestUseCase requestUseCase,
             @NonNull TradeAcceptUseCase acceptUseCase
     ) {
