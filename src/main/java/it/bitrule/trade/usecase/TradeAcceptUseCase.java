@@ -1,14 +1,17 @@
 package it.bitrule.trade.usecase;
 
 import it.bitrule.trade.MessageAssets;
+import it.bitrule.trade.Trade;
 import it.bitrule.trade.component.Transaction;
 import it.bitrule.trade.registry.RequestsRegistry;
 import it.bitrule.trade.registry.TransactionRegistry;
 import lombok.NonNull;
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 import java.util.UUID;
+import java.util.function.Consumer;
 
 public final class TradeAcceptUseCase extends TradeUseCase {
 
@@ -53,8 +56,8 @@ public final class TradeAcceptUseCase extends TradeUseCase {
         }
 
             // Check if the sender has a pending trade request with the receptor.
-        if (!this.requestsRegistry.has(sender.getUniqueId(), receptor.getUniqueId())) {
-            sender.sendMessage(MessageAssets.TRADE_NO_PENDING_REQUEST.build(receptorName));
+        if (!this.requestsRegistry.has(receptor.getUniqueId(), sender.getUniqueId())) {
+            sender.sendMessage(MessageAssets.NO_REQUEST_FOUND.build(receptorName));
             return;
         }
 
@@ -68,6 +71,26 @@ public final class TradeAcceptUseCase extends TradeUseCase {
         // Note: The logic about transaction when accepting a trade
         // the sender id at the transaction is who sent the request,
         // and the receptor id is who accepted the request.
-        this.transactionRegistry.register(new Transaction(UUID.randomUUID(), receptor.getUniqueId(), sender.getUniqueId()));
+        final Transaction transaction = new Transaction(UUID.randomUUID(), receptor.getUniqueId(), sender.getUniqueId());
+        this.transactionRegistry.register(transaction);
+
+        // Notify the receptor about the player has accepted his trade request.
+        // The sender is the one who accepted the trade, so we send a message to the receptor
+        receptor.sendMessage(MessageAssets.TRADE_REQUEST_WAS_ACCEPTED.build(sender.getName()));
+        sender.sendMessage(MessageAssets.TRADE_REQUEST_ACCEPTED.build(receptor.getName()));
+
+        Consumer<Player> playSound = player -> player.playSound(
+                player.getLocation().clone(),
+                Sound.ENTITY_PLAYER_LEVELUP,
+                0.6f,
+                1.0f
+        );
+
+        // Play sound for both sender and receptor to indicate the trade acceptance.
+        playSound.accept(receptor);
+        playSound.accept(sender);
+
+        Trade.showGui(sender, transaction, receptor.getName());
+        Trade.showGui(receptor, transaction, sender.getName());
     }
 }

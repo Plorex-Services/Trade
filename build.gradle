@@ -7,7 +7,7 @@ plugins {
     id 'java'
     id 'idea'
     alias libs.plugins.shadow
-    alias libs.plugins.nukkitPluginYAML
+    alias libs.plugins.bukkitPluginYAML
 }
 
 apply plugin: "java"
@@ -26,6 +26,7 @@ repositories {
 
 dependencies {
     compileOnly 'io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT'
+    implementation 'dev.triumphteam:triumph-gui:3.1.12'
 
     compileOnly(libs.annotations.get())
 
@@ -68,9 +69,9 @@ java {
     withSourcesJar()
 }
 
-nukkit {
-    main = "it.bitrule.phoenix.Phoenix"
-    api = ["1.0.0"]
+bukkit {
+    main = "it.bitrule.trade.Trade"
+    apiVersion = "1.21.5"
     version = "${project.version}"
     authors = ["bitrule"]
     description = "${findProperty("plugin-description")}"

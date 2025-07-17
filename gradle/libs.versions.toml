@@ -3,12 +3,11 @@ stray = "2024.0301.1"
 
 [plugins]
 shadow = "com.github.johnrengelman.shadow:7.1.2"
-spotless = "com.diffplug.spotless:6.17.0"
+spotless = "com.diffplug.spotless:7.0.3"
 bukkitPluginYAML = "net.minecrell.plugin-yml.bukkit:0.5.1"
-nukkitPluginYAML = "net.minecrell.plugin-yml.nukkit:0.5.1"
 
 [libraries]
-lombok = "org.projectlombok:lombok:1.18.24"
+lombok = "org.projectlombok:lombok:1.18.30"
 mongodb = "org.mongodb:mongodb-driver-sync:4.8.1"
 gson = "com.google.code.gson:gson:2.10.1"
 jedis = "redis.clients:jedis:2.10.2"
