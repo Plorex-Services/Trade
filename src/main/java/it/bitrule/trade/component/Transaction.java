@@ -26,24 +26,6 @@ public final class Transaction {
     private final @NonNull UUID receptor;
 
     /**
-     * The items that the sender is offering in the trade.
-     */
-    private final @NonNull Map<Integer, ItemStack> senderItems = new HashMap<>();
-    /**
-     * The items that the receptor is offering in the trade.
-     */
-    private final @NonNull Map<Integer, ItemStack> receptorItems = new HashMap<>();
-
-    /**
-     * The amount of money that the sender is offering in the trade.
-     */
-    private int senderMoney = 0;
-    /**
-     * The amount of money that the receptor is offering in the trade.
-     */
-    private int receptorMoney = 0;
-
-    /**
      * If the sender has marked their part of the trade as done.
      */
     private boolean senderDone = false;
@@ -51,6 +33,19 @@ public final class Transaction {
      * If the receptor has marked their part of the trade as done.
      */
     private boolean receptorDone = false;
+
+    /**
+     * This flag indicates whether the sender is on queue to finish their
+     * click on the trade menu.
+     * So if the flag is true, means he already clicked an item and is waiting
+     * to complete his task to avoid concurrency issues.
+     */
+    private boolean senderClicked = false;
+    /**
+     * This flag indicates whether the receptor is on queue to finish their
+     * click on the trade menu.
+     */
+    private boolean receptorClicked = false;
 
     /**
      * This flag indicates whether the trade transaction is cancelled.
@@ -62,4 +57,40 @@ public final class Transaction {
      * So this means that both players have confirmed their part of the trade and the countdown has expired.
      */
     private boolean ended = false;
+
+    /**
+     * Returns the reader state of the player in the transaction.
+     * @param playerId the mojang id of the player to check the ready state for
+     * @return true if the player has marked their part of the trade as done, false otherwise
+     */
+    public boolean getReadyState(@NonNull UUID playerId) {
+        if (playerId.equals(this.sender)) return this.senderDone;
+
+        return this.receptorDone;
+    }
+
+    /**
+     * Returns the clicked state of the player in the transaction.
+     * @param playerId the mojang id of the player to check the clicked state for
+     * @return true if the player has clicked an item in the trade menu, false otherwise
+     */
+    public boolean getClickedValue(@NonNull UUID playerId) {
+        if (playerId.equals(this.sender)) return this.senderClicked;
+
+        return this.receptorClicked;
+    }
+
+    /**
+     * Sets the clicked state of the player in the transaction.
+     * This method is created to avoid unnecessary repetition of code
+     * @param playerId the mojang id of the player to set the clicked state for
+     * @param value the clicked state to set, true if the player has clicked an item in the trade menu, false otherwise
+     */
+    public void setClickedValue(@NonNull UUID playerId, boolean value) {
+        if (playerId.equals(this.sender)) {
+            this.senderClicked = value;
+        } else {
+            this.receptorClicked = value;
+        }
+    }
 }
