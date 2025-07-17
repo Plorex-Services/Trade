@@ -46,10 +46,10 @@ public final class TradeRequestUseCase extends TradeUseCase {
         }
 
         // Check if the sender is trying to trade with themselves.
-        /*if (receptor.getUniqueId().equals(sender.getUniqueId())) {
+        if (receptor.getUniqueId().equals(sender.getUniqueId())) {
             sender.sendMessage(MessageAssets.CANNOT_TRADE_YOURSELF.build());
             return;
-        }*/
+        }
 
         // Check if the receptor is already trading with someone else.
         if (this.transactionRegistry.findByPlayer(receptor.getUniqueId()) != null) {

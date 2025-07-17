@@ -17,7 +17,7 @@ receptor_already_sent_request: "<red>El jugador %player% ya te ha enviado una so
 request_sent: "<trade_prefix><white>Has <dark_green>enviado</dark_green> una solicitud de comercio a <yellow>%player%</yellow>.</white>"
 request_received:
   message:
-    - "<trade_prefix><white>El jugador <dark_green>%sender%</dark_green> quiere intercambiar contigo.</white>"
+    - "<trade_prefix><white>El jugador <dark_green>%player%</dark_green> quiere intercambiar contigo.</white>"
     - "  <dark_gray>[</dark_gray>%accept% <dark_gray>|</dark_gray> %deny%<dark_gray>]</dark_gray>"
   accept_prompt: "<green>Aceptar</green>"
   deny_prompt: "<red>Rechazar</red>"
