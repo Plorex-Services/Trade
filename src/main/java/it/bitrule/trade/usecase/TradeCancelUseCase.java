@@ -25,6 +25,18 @@ public final class TradeCancelUseCase extends TradeUseCase {
         super(transactionRegistry, requestsRegistry, logger);
     }
 
+    /**
+     * Cancels an ongoing trade transaction.
+     * This method is used to cancel a trade transaction when a player decides to close the inventory or leave from the server.
+     * It checks if the player is currently trading, if the transaction is already ended or cancelled,
+     * and if not, it proceeds to cancel the transaction.
+     * It resets the done flags for both players involved in the trade,
+     * gives back the items to the players involved in the trade,
+     * closes the inventory of the recipient player,
+     * and sends messages to both players involved in the trade to notify them that the trade has been cancelled.
+     * @param player the player who is cancelling the trade
+     * @param closingInventory the inventory that is being closed, usually the player's inventory
+     */
     public void submit(@NonNull Player player, @NonNull Inventory closingInventory) {
         // If the player is not trading, there's nothing to cancel.
         Transaction transaction = this.transactionRegistry.findByPlayer(player.getUniqueId());
