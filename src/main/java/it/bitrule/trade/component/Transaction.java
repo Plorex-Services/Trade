@@ -51,4 +51,15 @@ public final class Transaction {
      * If the receptor has marked their part of the trade as done.
      */
     private boolean receptorDone = false;
+
+    /**
+     * This flag indicates whether the trade transaction is cancelled.
+     * This can happen if either player closes the trade menu or someone disconnects during the trade.
+     */
+    private boolean cancelled = false;
+    /**
+     * This flag indicates whether the trade transaction is ended.
+     * So this means that both players have confirmed their part of the trade and the countdown has expired.
+     */
+    private boolean ended = false;
 }
