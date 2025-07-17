@@ -22,7 +22,7 @@ import java.util.logging.Logger;
 
 abstract class SynchronizeUseCase extends TradeUseCase {
 
-    public SynchronizeUseCase(
+    SynchronizeUseCase(
             @NonNull TransactionRegistry transactionRegistry,
             @NonNull RequestsRegistry requestsRegistry,
             @NonNull Logger logger

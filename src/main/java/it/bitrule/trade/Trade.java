@@ -3,13 +3,8 @@ package it.bitrule.trade;
 import dev.triumphteam.gui.builder.item.ItemBuilder;
 import dev.triumphteam.gui.guis.Gui;
 import dev.triumphteam.gui.guis.GuiItem;
-import it.bitrule.trade.command.TradeCommand;
 import it.bitrule.trade.component.Transaction;
-import it.bitrule.trade.listener.InventoryCloseListener;
-import it.bitrule.trade.listener.PlayerQuitListener;
 import it.bitrule.trade.manager.TradeManager;
-import it.bitrule.trade.registry.RequestsRegistry;
-import it.bitrule.trade.registry.TransactionRegistry;
 import it.bitrule.trade.usecase.TradeMenuUseCase;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
@@ -18,7 +13,6 @@ import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.*;
@@ -42,22 +36,12 @@ public final class Trade extends JavaPlugin {
             45,46,47,48
     };
 
-    private static @Nullable TradeMenuUseCase menuUseCase;
-
     public void onEnable() {
         this.saveResource("messages.yml", true);
 
         MessageAssets.adjustInternal(YamlConfiguration.loadConfiguration(new File(this.getDataFolder(), "messages.yml")));
 
-        TransactionRegistry transactionRegistry = new TransactionRegistry();
-        RequestsRegistry requestsRegistry = new RequestsRegistry();
-
-        menuUseCase = new TradeMenuUseCase(transactionRegistry, requestsRegistry, this.getLogger());
-
-        this.getServer().getPluginManager().registerEvents(new PlayerQuitListener(requestsRegistry), this);
-        this.getServer().getPluginManager().registerEvents(new InventoryCloseListener(), this);
-
-        this.getServer().getCommandMap().register("trade", new TradeCommand());
+        TradeManager.getInstance().inject(this);
     }
 
     public static void showGui(@NonNull Player player, @NonNull Transaction transaction, @NonNull String receptorName) {

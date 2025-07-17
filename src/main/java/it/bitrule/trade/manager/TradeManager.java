@@ -1,6 +1,11 @@
 package it.bitrule.trade.manager;
 
 import it.bitrule.trade.Trade;
+import it.bitrule.trade.command.TradeCommand;
+import it.bitrule.trade.listener.InventoryCloseListener;
+import it.bitrule.trade.listener.PlayerQuitListener;
+import it.bitrule.trade.registry.RequestsRegistry;
+import it.bitrule.trade.registry.TransactionRegistry;
 import it.bitrule.trade.usecase.*;
 import lombok.Getter;
 import lombok.NonNull;
@@ -13,13 +18,14 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
 @RequiredArgsConstructor
 public final class TradeManager {
 
-    @Getter private final static @NonNull TradeManager instance = TradeManagerFactory.create();
+    @Getter private final static @NonNull TradeManager instance = new TradeManager();
     /**
      * This is the use case that handles the logic when a
      * player requests a trade with another player.
@@ -29,7 +35,7 @@ public final class TradeManager {
      * If all checks pass, it will send a trade request
      * to the recipient player.
      */
-    private final @NonNull TradeRequestUseCase requestUseCase;
+    private @Nullable TradeRequestUseCase requestUseCase;
     /**
      * This is the use case that handles the logic when a
      * player accepts a trade request.
@@ -40,29 +46,45 @@ public final class TradeManager {
      * mark the trade as accepted
      * and update the trade GUI for both players.
      */
-    private final @NonNull TradeAcceptUseCase acceptUseCase;
+    private @Nullable TradeAcceptUseCase acceptUseCase;
     /**
      * This is the use case that handles the logic when a
      * player is ready to complete the trade. If both players
      * are ready, it will start a countdown to complete the trade.
      */
-    private final @NonNull TradeReadyUseCase readyUseCase;
+    private @Nullable TradeReadyUseCase readyUseCase;
     /**
      * This is the use case that handles the logic when a
      * transaction needs to be cancelled. Like when a player
      * closes the inventory or leaves the server
      */
-    private final @NonNull TradeCancelUseCase cancelUseCase;
+    private @Nullable TradeCancelUseCase cancelUseCase;
     /**
      * This is the use case that handles the drag event
      * in the trade GUI.
      */
-    private final @NonNull TradeDragEventUseCase dragEventUseCase;
+    private @Nullable TradeDragEventUseCase dragEventUseCase;
     /**
      * This is the use case that handles the click event
      * in the trade GUI.
      */
-    private final @NonNull TradeClickEventUseCase clickEventUseCase;
+    private @Nullable TradeClickEventUseCase clickEventUseCase;
+
+    public void inject(@NonNull final JavaPlugin plugin) {
+        TransactionRegistry transactionRegistry = new TransactionRegistry();
+        RequestsRegistry requestsRegistry = new RequestsRegistry();
+        Bukkit.getPluginManager().registerEvents(new PlayerQuitListener(requestsRegistry), plugin);
+        Bukkit.getPluginManager().registerEvents(new InventoryCloseListener(), plugin);
+
+        Bukkit.getCommandMap().register("trade", new TradeCommand());
+
+        this.requestUseCase = new TradeRequestUseCase(transactionRegistry, requestsRegistry, plugin.getLogger());
+        this.acceptUseCase = new TradeAcceptUseCase(transactionRegistry, requestsRegistry, plugin.getLogger());
+        this.readyUseCase = new TradeReadyUseCase(transactionRegistry, requestsRegistry, plugin.getLogger());
+        this.cancelUseCase = new TradeCancelUseCase(transactionRegistry, requestsRegistry, plugin.getLogger());
+        this.dragEventUseCase = new TradeDragEventUseCase(transactionRegistry, requestsRegistry, plugin.getLogger());
+        this.clickEventUseCase = new TradeClickEventUseCase(transactionRegistry, requestsRegistry, plugin.getLogger());
+    }
 
     /**
      * Requests a trade with another player.
@@ -71,6 +93,10 @@ public final class TradeManager {
      */
     public void request(@NonNull Player sender, @NonNull String recipientName) {
         try {
+            if (this.requestUseCase == null) {
+                throw new IllegalStateException("TradeRequestUseCase is not initialized.");
+            }
+
             this.requestUseCase.submit(sender, recipientName);
         } catch (Exception ex) {
             // Handle the exception
@@ -85,6 +111,10 @@ public final class TradeManager {
      */
     public void accept(@NonNull Player player, @NonNull String recipientName) {
         try {
+            if (this.acceptUseCase == null) {
+                throw new IllegalStateException("TradeAcceptUseCase is not initialized.");
+            }
+
             this.acceptUseCase.submit(player, recipientName);
         } catch (Exception ex) {
             // Handle the exception
@@ -98,6 +128,10 @@ public final class TradeManager {
      */
     public void ready(@NonNull Player player) {
         try {
+            if (this.readyUseCase == null) {
+                throw new IllegalStateException("TradeReadyUseCase is not initialized.");
+            }
+
             this.readyUseCase.submit(player);
         } catch (Exception ex) {
             // Handle the exception
@@ -112,6 +146,10 @@ public final class TradeManager {
      */
     public void cancel(@NonNull Player player, @NonNull Inventory closingInventory) {
         try {
+            if (this.cancelUseCase == null) {
+                throw new IllegalStateException("TradeCancelUseCase is not initialized.");
+            }
+
             this.cancelUseCase.submit(player, closingInventory);
         } catch (Exception ex) {
             // Handle the exception
@@ -133,6 +171,10 @@ public final class TradeManager {
         }
 
         try {
+            if (this.dragEventUseCase == null) {
+                throw new IllegalStateException("TradeDragEventUseCase is not initialized.");
+            }
+
             dragEvent.setCancelled(this.dragEventUseCase.submit(player, dragEvent));
         } catch (Exception ex) {
             // Cancel the drag event to prevent further processing
@@ -156,6 +198,10 @@ public final class TradeManager {
         }
 
         try {
+            if (this.clickEventUseCase == null) {
+                throw new IllegalStateException("TradeClickEventUseCase is not initialized.");
+            }
+
             clickEvent.setCancelled(this.clickEventUseCase.submit(player, clickEvent));
         } catch (Exception ex) {
             // Cancel the click event to prevent further processing
