@@ -61,6 +61,8 @@ public final class TradeCancelUseCase extends TradeUseCase {
         // Then we can remove the transaction from the registry.
         this.giveBackItems(player, closingInventory);
 
+        // Search the id of the other player involved in the trade.
+        // If the player is the sender, the recipient is the receptor, and vice versa.
         UUID recipientId;
         if (player.getUniqueId().equals(transaction.getSender())) {
             recipientId = transaction.getReceptor();
@@ -83,7 +85,8 @@ public final class TradeCancelUseCase extends TradeUseCase {
                 )
         );
 
-        // If the recipient is online, we also give back their items.
+        // If the recipient is viewing a trade GUI, we need to close it.
+        // but first we need to give back the items to the recipient.
         Inventory recipientInventory = recipient.getOpenInventory().getTopInventory();
         if (!(recipientInventory.getHolder() instanceof BaseGui)) return;
 

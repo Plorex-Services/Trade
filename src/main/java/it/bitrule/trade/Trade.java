@@ -1,6 +1,7 @@
 package it.bitrule.trade;
 
 import dev.triumphteam.gui.builder.item.ItemBuilder;
+import dev.triumphteam.gui.guis.BaseGui;
 import dev.triumphteam.gui.guis.Gui;
 import it.bitrule.trade.command.TradeCommand;
 import it.bitrule.trade.component.Transaction;
@@ -14,13 +15,20 @@ import it.bitrule.trade.usecase.TradeRequestUseCase;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class Trade extends JavaPlugin {
 
@@ -77,17 +85,18 @@ public final class Trade extends JavaPlugin {
                         .asGuiItem()
         );
 
-        boolean isReceptorDone = transaction.getSender().equals(player.getUniqueId()) ? transaction.isReceptorDone() : transaction.isSenderDone();
+        boolean isSelfSender = player.getUniqueId().equals(transaction.getSender());
+        boolean isRecipientDone = isSelfSender ? transaction.isReceptorDone() : transaction.isSenderDone();
 
         MessageAssets otherDoneDisplayName;
-        if (isReceptorDone) {
+        if (isRecipientDone) {
             otherDoneDisplayName = MessageAssets.MENU_STATE_OPTION_DISPLAY_NAME_OTHER_DONE;
         } else {
             otherDoneDisplayName = MessageAssets.MENU_STATE_OPTION_DISPLAY_NAME_OTHER_NOT_DONE;
         }
 
         MessageAssets otherDoneLore;
-        if (isReceptorDone) {
+        if (isRecipientDone) {
             otherDoneLore = MessageAssets.MENU_STATE_OPTION_LORE_OTHER_DONE;
         } else {
             otherDoneLore = MessageAssets.MENU_STATE_OPTION_LORE_OTHER_NOT_DONE;
@@ -95,7 +104,7 @@ public final class Trade extends JavaPlugin {
 
         gui.setItem(
                 14,
-                ItemBuilder.from(isReceptorDone ? Material.GREEN_CONCRETE : Material.RED_CONCRETE)
+                ItemBuilder.from(isRecipientDone ? Material.GREEN_CONCRETE : Material.RED_CONCRETE)
                         .name(otherDoneDisplayName.build(receptorName).decoration(TextDecoration.ITALIC, false))
                         .lore(otherDoneLore.buildMany(receptorName).stream()
                                 .map(line -> line.decoration(TextDecoration.ITALIC, false))
@@ -104,19 +113,105 @@ public final class Trade extends JavaPlugin {
                         .asGuiItem()
         );
 
+        AtomicBoolean clickQueue = new AtomicBoolean(false);
+        gui.setDragAction(dragEvent -> {
+            Inventory inventory = dragEvent.getInventory();
+            // If the player who clicked is marked as done in the transaction, we cancel the drag event
+            if (isSelfSender ? transaction.isSenderDone() : transaction.isReceptorDone()) {
+                dragEvent.setCancelled(true);
+                return;
+            }
+
+            if (clickQueue.get() || transaction.isEnded() || transaction.isCancelled()) {
+                dragEvent.setCancelled(true);
+                return;
+            }
+
+            clickQueue.set(true);
+
+            // Synchronize the inventories of the player and the transaction
+            Bukkit.getScheduler().runTask(
+                    Trade.getPlugin(Trade.class),
+                    () -> {
+                        // Synchronize the inventories of the player and the transaction
+                        synchronizeInventories(player, transaction, inventory);
+
+                        clickQueue.set(false);
+                    }
+            );
+        });
+
         gui.setDefaultClickAction(clickEvent -> {
+            Inventory clickedInventory = clickEvent.getClickedInventory();
+            if (clickedInventory == null) {
+                throw new IllegalStateException("Clicked inventory is null");
+            }
+
+            if (clickedInventory.getType().equals(InventoryType.PLAYER)) return;
+
             if (Arrays.stream(VIEWER_SLOT).noneMatch(slot -> slot == clickEvent.getSlot())) {
                 clickEvent.setCancelled(true);
                 return;
             }
 
             // If the player who clicked is marked as done in the transaction, we cancel the click event
-            boolean isSelfDone = transaction.getSender().equals(player.getUniqueId()) ? transaction.isSenderDone() : transaction.isReceptorDone();
-            if (!isSelfDone) return;
+            if (isSelfSender ? transaction.isSenderDone() : transaction.isReceptorDone()) {
+                clickEvent.setCancelled(true);
+                return;
+            }
 
-            clickEvent.setCancelled(true);
+            if (clickQueue.get() || transaction.isEnded() || transaction.isCancelled()) {
+                clickEvent.setCancelled(true);
+                return;
+            }
+
+            clickQueue.set(true);
+            Bukkit.getScheduler().runTask(
+                    Trade.getPlugin(Trade.class),
+                    () -> {
+                        // Synchronize the inventories of the player and the transaction
+                        synchronizeInventories(player, transaction, clickedInventory);
+                        clickQueue.set(false);
+                    }
+            );
         });
 
         gui.open(player);
+    }
+
+    private static void synchronizeInventories(@NonNull Player player, @NonNull Transaction transaction, @NonNull Inventory from) {
+        UUID recipientId;
+        if (transaction.getSender().equals(player.getUniqueId())) {
+            recipientId = transaction.getReceptor();
+        } else {
+            recipientId = transaction.getSender();
+        }
+
+        Player recipient = Bukkit.getPlayer(recipientId);
+        if (recipient == null || !recipient.isConnected()) {
+            player.closeInventory();
+            return;
+        }
+
+        // If the recipient is not viewing a trade GUI, we cancel the click event
+        Inventory recipientInventory = recipient.getOpenInventory().getTopInventory();
+        if (!(recipientInventory.getHolder() instanceof BaseGui)) {
+            player.closeInventory();
+            return;
+        }
+
+        for (int slot : VIEWER_SLOT) {
+            ItemStack itemStack = from.getItem(slot);
+            if (itemStack == null || itemStack.isEmpty()) itemStack = new ItemStack(Material.AIR);
+
+            recipientInventory.setItem(slotToViewer(slot), itemStack);
+        }
+    }
+
+    public static int slotToViewer(int slot) {
+        if (slot <= 19) return slot + 7;
+        if (slot <= 29) return slot + 6;
+
+        return slot + 5;
     }
 }
