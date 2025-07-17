@@ -7,12 +7,10 @@ import it.bitrule.trade.command.TradeCommand;
 import it.bitrule.trade.component.Transaction;
 import it.bitrule.trade.listener.InventoryCloseListener;
 import it.bitrule.trade.listener.PlayerQuitListener;
+import it.bitrule.trade.manager.TradeManager;
 import it.bitrule.trade.registry.RequestsRegistry;
 import it.bitrule.trade.registry.TransactionRegistry;
-import it.bitrule.trade.usecase.TradeAcceptUseCase;
-import it.bitrule.trade.usecase.TradeCancelUseCase;
 import it.bitrule.trade.usecase.TradeMenuUseCase;
-import it.bitrule.trade.usecase.TradeRequestUseCase;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -57,18 +55,9 @@ public final class Trade extends JavaPlugin {
         menuUseCase = new TradeMenuUseCase(transactionRegistry, requestsRegistry, this.getLogger());
 
         this.getServer().getPluginManager().registerEvents(new PlayerQuitListener(requestsRegistry), this);
-        this.getServer().getPluginManager().registerEvents(
-                new InventoryCloseListener(new TradeCancelUseCase(transactionRegistry, requestsRegistry, this.getLogger())),
-                this
-        );
+        this.getServer().getPluginManager().registerEvents(new InventoryCloseListener(), this);
 
-        this.getServer().getCommandMap().register(
-                "trade",
-                new TradeCommand(
-                        new TradeRequestUseCase(transactionRegistry, requestsRegistry, this.getLogger()),
-                        new TradeAcceptUseCase(transactionRegistry, requestsRegistry, this.getLogger())
-                )
-        );
+        this.getServer().getCommandMap().register("trade", new TradeCommand());
     }
 
     public static void showGui(@NonNull Player player, @NonNull Transaction transaction, @NonNull String receptorName) {
@@ -93,8 +82,8 @@ public final class Trade extends JavaPlugin {
                         clickEvent -> {
                             if (transaction.isCancelled() || transaction.isEnded()) {
                                 clickEvent.setCancelled(true);
-                            } else if (menuUseCase != null) {
-                                menuUseCase.executeReady(player, transaction);
+                            } else {
+                                TradeManager.getInstance().ready(player);
                             }
                         })
         );
@@ -119,21 +108,8 @@ public final class Trade extends JavaPlugin {
                         .asGuiItem()
         );
 
-        gui.setDragAction(dragEvent -> {
-            if (menuUseCase == null) {
-                throw new IllegalStateException("TradeMenuUseCase is not initialized. Please call showGui() method first.");
-            }
-
-            menuUseCase.executeDragEvent(player, transaction, dragEvent);
-        });
-
-        gui.setDefaultClickAction(clickEvent -> {
-            if (menuUseCase == null) {
-                throw new IllegalStateException("TradeMenuUseCase is not initialized. Please call showGui() method first.");
-            }
-
-            menuUseCase.executeClickEvent(player, transaction, clickEvent);
-        });
+        gui.setDefaultClickAction(TradeManager.getInstance()::clickEvent);
+        gui.setDragAction(TradeManager.getInstance()::dragEvent);
 
         gui.open(player);
     }

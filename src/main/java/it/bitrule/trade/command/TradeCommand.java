@@ -1,9 +1,7 @@
 package it.bitrule.trade.command;
 
 import it.bitrule.trade.MessageAssets;
-import it.bitrule.trade.usecase.TradeAcceptUseCase;
-import it.bitrule.trade.usecase.TradeRequestUseCase;
-import lombok.NonNull;
+import it.bitrule.trade.manager.TradeManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -16,25 +14,8 @@ import java.util.LinkedList;
 
 public final class TradeCommand extends Command {
 
-    /**
-     * This is the use case that handles the logic when a
-     * player requests a trade with another player.
-     */
-    private final @NonNull TradeRequestUseCase requestUseCase;
-    /**
-     * This is the use case that handles the logic when a
-     * player accepts a trade request from another player.
-     */
-    private final @NonNull TradeAcceptUseCase acceptUseCase;
-
-    public TradeCommand(
-            @NonNull TradeRequestUseCase requestUseCase,
-            @NonNull TradeAcceptUseCase acceptUseCase
-    ) {
+    public TradeCommand() {
         super("trade", "Trade with another player", "/trade <player> | /trade accept <player>", new LinkedList<>());
-
-        this.requestUseCase = requestUseCase;
-        this.acceptUseCase = acceptUseCase;
     }
 
     /**
@@ -61,9 +42,9 @@ public final class TradeCommand extends Command {
         }
 
         if (args[0].equals("accept")) {
-            this.acceptUseCase.submit((Player) sender, args.length > 1 ? args[1] : "");
+            TradeManager.getInstance().accept((Player) sender, args.length > 1 ? args[1] : "");
         } else {
-            this.requestUseCase.submit((Player) sender, args[0]);
+            TradeManager.getInstance().request((Player) sender, args[0]);
         }
 
         return false;
