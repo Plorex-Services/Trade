@@ -71,13 +71,13 @@ public final class TradeRequestUseCase extends TradeUseCase {
                 JoinConfiguration.newlines(),
                 MessageAssets.TRADE_REQUEST_RECEIVED.buildMany(
                         sender.getName(),
-                        MessageAssets.internal("trade.request_received.accept_prompt")
+                        MessageAssets.internal("request_received.accept_prompt")
                                 .hoverEvent(HoverEvent.showText(
                                         MessageAssets.TRADE_REQUEST_RECEIVED_ACCEPT_HOVER.build(sender.getName())
                                 ))
                                 .clickEvent(ClickEvent.runCommand("/trade accept " + sender.getName()))
                         ,
-                        MessageAssets.internal("trade.request_received.deny_prompt")
+                        MessageAssets.internal("request_received.deny_prompt")
                                 .hoverEvent(HoverEvent.showText(
                                         MessageAssets.TRADE_REQUEST_RECEIVED_DENY_HOVER.build(sender.getName())
                                 ))

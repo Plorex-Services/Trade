@@ -15,23 +15,31 @@ import java.util.stream.Collectors;
 
 public enum MessageAssets {
 
-    TRADE_COMMAND_USAGE("trade.command-usage"),
+    TRADE_COMMAND_USAGE("command_usage"),
 
-    PLAYER_NOT_ONLINE("player.not_online", "target"),
+    PLAYER_NOT_ONLINE("player_not_online", "recipient"),
 
-    TRADE_CANNOT_TRADE_YOURSELF("trade.cannot_trade_yourself"),
-    TRADE_SENDER_ALREADY_TRADING("trade.sender_already_trading", "target"),
-    TRADE_RECEPTOR_ALREADY_TRADING("trade.receptor_already_trading", "target"),
-    TRADE_SENDER_ALREADY_SENT_REQUEST("trade.sender_already_sent_request", "target"),
-    TRADE_RECEPTOR_ALREADY_SENT_REQUEST("trade.receptor_already_sent_request", "target"),
-    TRADE_REQUEST_SENT("trade.request_sent", "recipient"),
-    TRADE_REQUEST_RECEIVED("trade.request_received.message", "sender", "accept", "deny"),
-    TRADE_REQUEST_RECEIVED_ACCEPT_HOVER("trade.request_received.accept_hover", "sender"),
-    TRADE_REQUEST_RECEIVED_DENY_HOVER("trade.request_received.deny_hover", "sender"),
+    TRADE_CANNOT_TRADE_YOURSELF("cannot_trade_yourself"),
+    TRADE_SENDER_ALREADY_TRADING("sender_already_trading"),
+    TRADE_RECEPTOR_ALREADY_TRADING("receptor_already_trading", "recipient"),
 
+    TRADE_SENDER_ALREADY_SENT_REQUEST("sender_already_sent_request", "recipient"),
+    TRADE_RECEPTOR_ALREADY_SENT_REQUEST("receptor_already_sent_request", "recipient"),
 
+    TRADE_REQUEST_SENT("request_sent", "recipient"),
+    TRADE_REQUEST_RECEIVED("request_received.message", "sender", "accept", "deny"),
+    TRADE_REQUEST_RECEIVED_ACCEPT_HOVER("request_received.accept_hover", "sender"),
+    TRADE_REQUEST_RECEIVED_DENY_HOVER("request_received.deny_hover", "sender"),
 
-    ;
+    NO_REQUEST_FOUND("no_request_found", "recipient"),
+    TRADE_REQUEST_ACCEPTED("request_accepted", "sender"),
+    TRADE_REQUEST_WAS_ACCEPTED("request_was_accepted", "receptor"),
+
+    MENU_TITLE("menu.title", "recipient"),
+    MENU_STATE_OPTION_DISPLAY_NAME_OTHER_NOT_DONE("menu.state_option.display_name.other_not_done", "player"),
+    MENU_STATE_OPTION_LORE_OTHER_NOT_DONE("menu.state_option.lore.other.not_done", "player"),
+    MENU_STATE_OPTION_DISPLAY_NAME_OTHER_DONE("menu.state_option.display_name.other_done", "player"),
+    MENU_STATE_OPTION_LORE_OTHER_DONE("menu.state_option.lore.other.done", "player");
 
     /**
      * This is the messages.yml file that contains all the messages used in the plugin.
