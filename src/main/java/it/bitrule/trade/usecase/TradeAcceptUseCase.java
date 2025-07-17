@@ -38,7 +38,7 @@ public final class TradeAcceptUseCase extends TradeUseCase {
 
         // Check if the sender is already trading with someone else.
         if (this.transactionRegistry.findByPlayer(sender.getUniqueId()) != null) {
-            sender.sendMessage(MessageAssets.TRADE_SENDER_ALREADY_TRADING.build());
+            sender.sendMessage(MessageAssets.SENDER_ALREADY_TRADING.build());
             return;
         }
 
@@ -51,7 +51,7 @@ public final class TradeAcceptUseCase extends TradeUseCase {
 
         // Check if the receptor is already trading with someone else.
         if (this.transactionRegistry.findByPlayer(receptor.getUniqueId()) != null) {
-            sender.sendMessage(MessageAssets.TRADE_RECEPTOR_ALREADY_TRADING.build(receptorName));
+            sender.sendMessage(MessageAssets.RECEPTOR_ALREADY_TRADING.build(receptorName));
             return;
         }
 
@@ -76,8 +76,8 @@ public final class TradeAcceptUseCase extends TradeUseCase {
 
         // Notify the receptor about the player has accepted his trade request.
         // The sender is the one who accepted the trade, so we send a message to the receptor
-        receptor.sendMessage(MessageAssets.TRADE_REQUEST_WAS_ACCEPTED.build(sender.getName()));
-        sender.sendMessage(MessageAssets.TRADE_REQUEST_ACCEPTED.build(receptor.getName()));
+        receptor.sendMessage(MessageAssets.REQUEST_WAS_ACCEPTED.build(sender.getName()));
+        sender.sendMessage(MessageAssets.REQUEST_ACCEPTED.build(receptor.getName()));
 
         Consumer<Player> playSound = player -> player.playSound(
                 player.getLocation().clone(),

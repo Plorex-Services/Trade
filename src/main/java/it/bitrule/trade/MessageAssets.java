@@ -19,21 +19,24 @@ public enum MessageAssets {
 
     PLAYER_NOT_ONLINE("player_not_online", "recipient"),
 
-    TRADE_CANNOT_TRADE_YOURSELF("cannot_trade_yourself"),
-    TRADE_SENDER_ALREADY_TRADING("sender_already_trading"),
-    TRADE_RECEPTOR_ALREADY_TRADING("receptor_already_trading", "recipient"),
+    CANNOT_TRADE_YOURSELF("cannot_trade_yourself"),
+    SENDER_ALREADY_TRADING("sender_already_trading"),
+    RECEPTOR_ALREADY_TRADING("receptor_already_trading", "recipient"),
 
-    TRADE_SENDER_ALREADY_SENT_REQUEST("sender_already_sent_request", "recipient"),
-    TRADE_RECEPTOR_ALREADY_SENT_REQUEST("receptor_already_sent_request", "recipient"),
+    SENDER_ALREADY_SENT_REQUEST("sender_already_sent_request", "recipient"),
+    RECEPTOR_ALREADY_SENT_REQUEST("receptor_already_sent_request", "recipient"),
 
-    TRADE_REQUEST_SENT("request_sent", "recipient"),
-    TRADE_REQUEST_RECEIVED("request_received.message", "sender", "accept", "deny"),
-    TRADE_REQUEST_RECEIVED_ACCEPT_HOVER("request_received.accept_hover", "sender"),
-    TRADE_REQUEST_RECEIVED_DENY_HOVER("request_received.deny_hover", "sender"),
+    REQUEST_SENT("request_sent", "recipient"),
+    REQUEST_RECEIVED("request_received.message", "sender", "accept", "deny"),
+    REQUEST_RECEIVED_ACCEPT_HOVER("request_received.accept_hover", "sender"),
+    REQUEST_RECEIVED_DENY_HOVER("request_received.deny_hover", "sender"),
 
     NO_REQUEST_FOUND("no_request_found", "recipient"),
-    TRADE_REQUEST_ACCEPTED("request_accepted", "sender"),
-    TRADE_REQUEST_WAS_ACCEPTED("request_was_accepted", "receptor"),
+    REQUEST_ACCEPTED("request_accepted", "sender"),
+    REQUEST_WAS_ACCEPTED("request_was_accepted", "receptor"),
+
+    TRANSACTION_CANCELLED("transaction_cancelled", "player"),
+    TRANSACTION_WAS_CANCELLED("transaction_was_cancelled", "player"),
 
     MENU_TITLE("menu.title", "recipient"),
     MENU_STATE_OPTION_DISPLAY_NAME_OTHER_NOT_DONE("menu.state_option.display_name.other_not_done", "player"),

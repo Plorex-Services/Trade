@@ -1,6 +1,7 @@
 package it.bitrule.trade.usecase;
 
 import dev.triumphteam.gui.guis.BaseGui;
+import it.bitrule.trade.MessageAssets;
 import it.bitrule.trade.Trade;
 import it.bitrule.trade.component.Transaction;
 import it.bitrule.trade.registry.RequestsRegistry;
@@ -35,9 +36,6 @@ public final class TradeCancelUseCase extends TradeUseCase {
         transaction.setReceptorDone(false);
         transaction.setSenderDone(false);
 
-        // TODO: Notify the players that the trade has been cancelled.
-        // and who cancelled it.
-
         // After marking the transaction as cancelled and resetting the done flags,
         // we need to give back the items to the players involved in the trade.
         // Then we can remove the transaction from the registry.
@@ -52,6 +50,18 @@ public final class TradeCancelUseCase extends TradeUseCase {
 
         Player recipient = Bukkit.getPlayer(recipientId);
         if (recipient == null || !recipient.isConnected()) return;
+
+        player.sendMessage(
+                MessageAssets.TRANSACTION_CANCELLED.build(
+                        recipient.getName()
+                )
+        );
+
+        recipient.sendMessage(
+                MessageAssets.TRANSACTION_WAS_CANCELLED.build(
+                        player.getName()
+                )
+        );
 
         // If the recipient is online, we also give back their items.
         Inventory recipientInventory = recipient.getOpenInventory().getTopInventory();

@@ -28,7 +28,7 @@ public final class TradeRequestUseCase extends TradeUseCase {
     public void submit(@NonNull Player sender, @NonNull String receptorName) {
         // Check if the sender is already trading with someone else.
         if (this.transactionRegistry.findByPlayer(sender.getUniqueId()) != null) {
-            sender.sendMessage(MessageAssets.TRADE_SENDER_ALREADY_TRADING.build());
+            sender.sendMessage(MessageAssets.SENDER_ALREADY_TRADING.build());
             return;
         }
 
@@ -41,25 +41,25 @@ public final class TradeRequestUseCase extends TradeUseCase {
 
         // Check if the sender is trying to trade with themselves.
         if (receptor.getUniqueId().equals(sender.getUniqueId())) {
-            sender.sendMessage(MessageAssets.TRADE_CANNOT_TRADE_YOURSELF.build());
+            sender.sendMessage(MessageAssets.CANNOT_TRADE_YOURSELF.build());
             return;
         }
 
         // Check if the receptor is already trading with someone else.
         if (this.transactionRegistry.findByPlayer(receptor.getUniqueId()) != null) {
-            sender.sendMessage(MessageAssets.TRADE_RECEPTOR_ALREADY_TRADING.build());
+            sender.sendMessage(MessageAssets.RECEPTOR_ALREADY_TRADING.build());
             return;
         }
 
         // Check if the sender has already sent a request to the receptor.
         if (this.requestsRegistry.has(sender.getUniqueId(), receptor.getUniqueId())) {
-            sender.sendMessage(MessageAssets.TRADE_SENDER_ALREADY_SENT_REQUEST.build(receptorName));
+            sender.sendMessage(MessageAssets.SENDER_ALREADY_SENT_REQUEST.build(receptorName));
             return;
         }
 
         // Check if the receptor has already sent a request to the sender.
         if (this.requestsRegistry.has(receptor.getUniqueId(), sender.getUniqueId())) {
-            sender.sendMessage(MessageAssets.TRADE_RECEPTOR_ALREADY_SENT_REQUEST.build(receptorName));
+            sender.sendMessage(MessageAssets.RECEPTOR_ALREADY_SENT_REQUEST.build(receptorName));
             return;
         }
 
@@ -69,22 +69,22 @@ public final class TradeRequestUseCase extends TradeUseCase {
         // Notify the receptor about the new trade request sending a message.
         receptor.sendMessage(Component.join(
                 JoinConfiguration.newlines(),
-                MessageAssets.TRADE_REQUEST_RECEIVED.buildMany(
+                MessageAssets.REQUEST_RECEIVED.buildMany(
                         sender.getName(),
                         MessageAssets.internal("request_received.accept_prompt")
                                 .hoverEvent(HoverEvent.showText(
-                                        MessageAssets.TRADE_REQUEST_RECEIVED_ACCEPT_HOVER.build(sender.getName())
+                                        MessageAssets.REQUEST_RECEIVED_ACCEPT_HOVER.build(sender.getName())
                                 ))
                                 .clickEvent(ClickEvent.runCommand("/trade accept " + sender.getName()))
                         ,
                         MessageAssets.internal("request_received.deny_prompt")
                                 .hoverEvent(HoverEvent.showText(
-                                        MessageAssets.TRADE_REQUEST_RECEIVED_DENY_HOVER.build(sender.getName())
+                                        MessageAssets.REQUEST_RECEIVED_DENY_HOVER.build(sender.getName())
                                 ))
                                 .clickEvent(ClickEvent.runCommand("/trade deny " + sender.getName()))
                 )
         ));
 
-        sender.sendMessage(MessageAssets.TRADE_REQUEST_SENT.build(receptorName));
+        sender.sendMessage(MessageAssets.REQUEST_SENT.build(receptorName));
     }
 }
