@@ -3,6 +3,7 @@ package it.bitrule.trade.task;
 import dev.triumphteam.gui.guis.BaseGui;
 import it.bitrule.trade.MessageAssets;
 import it.bitrule.trade.component.Transaction;
+import it.bitrule.trade.manager.TradeManager;
 import it.bitrule.trade.usecase.TradeReadyUseCase;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -54,7 +55,7 @@ public final class CountdownTask extends BukkitRunnable {
 
             String recipientName = this.players[index == 0 ? 1 : 0].getName();
             player.sendMessage(
-                    MessageAssets.ENDING_COUNTDOWN.build(
+                    MessageAssets.TRANSACTION_ENDING_COUNTDOWN.build(
                             recipientName,
                             remaining > 1 ? remaining + " segundos" : "1 segundo"
                     )
@@ -70,8 +71,8 @@ public final class CountdownTask extends BukkitRunnable {
 
         if (remaining > 0) return;
 
-        this.cancel();
+        TradeManager.getInstance().end(this.players, this.transaction.getId());
 
-        // TODO: Submit the end use case and after that, close the menu for each player.
+        this.cancel();
     }
 }

@@ -99,7 +99,7 @@ public final class TradeCancelUseCase extends TradeUseCase {
         Inventory recipientInventory = recipient.getOpenInventory().getTopInventory();
         if (!(recipientInventory.getHolder() instanceof BaseGui)) return;
 
-        this.giveBackItems(recipient, recipientInventory);
+        giveBackItems(recipient, recipientInventory);
 
         if (recipientInventory.close() == 0) {
             this.logger.warning("[Receptor - Trade] Unexpected behavior... Nobody was viewing the inventory of " + recipient.getName());
@@ -108,7 +108,7 @@ public final class TradeCancelUseCase extends TradeUseCase {
         }
     }
 
-    private void giveBackItems(@NonNull Player player, @NonNull Inventory inventory) {
+    public static void giveBackItems(@NonNull Player player, @NonNull Inventory inventory) {
         for (int slot : Trade.VIEWER_SLOT) {
             ItemStack itemStack = inventory.getItem(slot);
             if (itemStack == null || itemStack.isEmpty()) continue;

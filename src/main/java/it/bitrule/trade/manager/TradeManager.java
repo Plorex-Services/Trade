@@ -21,6 +21,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 public final class TradeManager {
@@ -55,6 +56,13 @@ public final class TradeManager {
     private @Nullable TradeReadyUseCase readyUseCase;
     /**
      * This is the use case that handles the logic when a
+     * trade transaction needs to be ended.
+     * This is when both players are ready and the
+     * countdown has finished.
+     */
+    private @Nullable TradeEndUseCase endUseCase;
+    /**
+     * This is the use case that handles the logic when a
      * transaction needs to be cancelled. Like when a player
      * closes the inventory or leaves the server
      */
@@ -81,6 +89,7 @@ public final class TradeManager {
         this.requestUseCase = new TradeRequestUseCase(transactionRegistry, requestsRegistry, plugin.getLogger());
         this.acceptUseCase = new TradeAcceptUseCase(transactionRegistry, requestsRegistry, plugin.getLogger());
         this.readyUseCase = new TradeReadyUseCase(transactionRegistry, requestsRegistry, plugin.getLogger());
+        this.endUseCase = new TradeEndUseCase(transactionRegistry, requestsRegistry, plugin.getLogger());
         this.cancelUseCase = new TradeCancelUseCase(transactionRegistry, requestsRegistry, plugin.getLogger());
         this.dragEventUseCase = new TradeDragEventUseCase(transactionRegistry, requestsRegistry, plugin.getLogger());
         this.clickEventUseCase = new TradeClickEventUseCase(transactionRegistry, requestsRegistry, plugin.getLogger());
@@ -136,6 +145,29 @@ public final class TradeManager {
         } catch (Exception ex) {
             // Handle the exception
             this.handleException(player, ex);
+        }
+    }
+
+    /**
+     * Ends the trade transaction for the participants.
+     * @param participants the players who are participating in the trade
+     * @param transactionId the unique identifier of the trade transaction
+     */
+    public void end(@NonNull Player[] participants, @NonNull UUID transactionId) {
+        try {
+            if (this.endUseCase == null) {
+                throw new IllegalStateException("TradeReadyUseCase is not initialized.");
+            }
+
+            this.endUseCase.submit(participants, transactionId);
+        } catch (Exception ex) {
+            // Handle the exception
+            for (Player participant : participants) {
+                if (!participant.isConnected()) continue;
+
+                // Log the exception for each participant
+                this.handleException(participant, ex);
+            }
         }
     }
 

@@ -27,6 +27,14 @@ import java.util.logging.Logger;
 
 public final class TradeReadyUseCase extends TradeUseCase {
 
+    public final static @NonNull Function<Player, Inventory> INVENTORY_WRAPPER = p -> {
+        Inventory inv = p.getOpenInventory().getTopInventory();
+        if (!(inv.getHolder() instanceof BaseGui)) {
+            throw new IllegalStateException("The inventory holder is not a BaseGui for player: " + p.getName());
+        }
+        return inv;
+    };
+
     public TradeReadyUseCase(
             @NonNull TransactionRegistry transactionRegistry,
             @NonNull RequestsRegistry requestsRegistry,
@@ -71,21 +79,12 @@ public final class TradeReadyUseCase extends TradeUseCase {
         recipient.sendMessage(recipientMessageAsset.build(player.getName()));
         player.sendMessage(senderMessageAsset.build(recipient.getName()));
 
-        Function<Player, Inventory> inventoryWrapper = p -> {
-            Inventory inv = p.getOpenInventory().getTopInventory();
-            if (!(inv.getHolder() instanceof BaseGui)) {
-                throw new IllegalStateException("The inventory holder is not a BaseGui for player: " + p.getName());
-            }
-
-            return inv;
-        };
-
         boolean executorReadyState = transaction.getReadyState(player.getUniqueId());
-        inventoryWrapper.apply(player).setItem(
+        INVENTORY_WRAPPER.apply(player).setItem(
                 12,
                 getSelfReadyItemStack(recipient.getName(), executorReadyState ? 6 : 5)
         );
-        inventoryWrapper.apply(recipient).setItem(
+        INVENTORY_WRAPPER.apply(recipient).setItem(
                 12,
                 getOtherReadyItemStack(player.getName(), executorReadyState)
         );

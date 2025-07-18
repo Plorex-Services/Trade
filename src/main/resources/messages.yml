@@ -37,8 +37,8 @@ transaction_is_ready: "<trade_prefix><yellow>%player%</yellow> <white>ha marcado
 transaction_no_longer_ready: "<trade_prefix><white>El comercio con <yellow>%player%</yellow> ha sido marcado como <dark_red>no confirmado</dark_red>.</white>"
 transaction_was_no_longer_ready: "<trade_prefix><yellow>%player%</yellow> <white>ha marcado cómo <dark_red>no confirmado</dark_red> el comercio.</white>"
 
-transaction_completed: "<trade_prefix><white>El comercio con <yellow>%player%</yellow> ha sido <dark_green>completado</dark_green>.</white>"
-ending_countdown: "<trade_prefix><white>El comercio con <yellow>%player%</yellow> se completará en <dark_green>%remaining%</dark_green>.</white>"
+transaction_ended: "<trade_prefix><white>El comercio con <yellow>%player%</yellow> ha sido <dark_green>terminado</dark_green>.</white>"
+transaction_ending_countdown: "<trade_prefix><white>El comercio con <yellow>%player%</yellow> se completará en <dark_green>%remaining%</dark_green>.</white>"
 
 menu:
   title: "<dark_gray>Intercambio con <yellow>%player%</yellow></dark_gray>"

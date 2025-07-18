@@ -44,7 +44,9 @@ public enum MessageAssets {
     TRANSACTION_READY("transaction_ready", "player"),
     TRANSACTION_NO_LONGER_READY("transaction_no_longer_ready", "player"),
 
-    ENDING_COUNTDOWN("ending_countdown", "player", "remaining"),
+    TRANSACTION_ENDING_COUNTDOWN("transaction_ending_countdown", "player", "remaining"),
+    TRANSACTION_ENDED("transaction_ended", "player"),
+
 
     MENU_TITLE("menu.title", "player"),
 
