@@ -20,6 +20,11 @@ public final class TradeDenyUseCase extends TradeUseCase {
     }
 
     public void submit(@NonNull Player sender, @NonNull String recipientName) {
+        if (recipientName.isEmpty()) {
+            sender.sendMessage(MessageAssets.TRADE_COMMAND_USAGE.build());
+            return;
+        }
+
         Player recipient = Bukkit.getPlayer(recipientName);
         if (recipient == null || !recipient.isOnline()) {
             sender.sendMessage(MessageAssets.PLAYER_NOT_ONLINE.build(recipientName));
