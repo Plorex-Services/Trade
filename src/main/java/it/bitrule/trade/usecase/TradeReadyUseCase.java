@@ -82,10 +82,10 @@ public final class TradeReadyUseCase extends TradeUseCase {
         boolean executorReadyState = transaction.getReadyState(player.getUniqueId());
         INVENTORY_WRAPPER.apply(player).setItem(
                 12,
-                getSelfReadyItemStack(recipient.getName(), executorReadyState ? 6 : 5)
+                getSelfReadyItemStack(recipient.getName(), executorReadyState ? 5 : 7)
         );
         INVENTORY_WRAPPER.apply(recipient).setItem(
-                12,
+                14,
                 getOtherReadyItemStack(player.getName(), executorReadyState)
         );
 
@@ -113,18 +113,18 @@ public final class TradeReadyUseCase extends TradeUseCase {
 
     public static @NonNull ItemStack getSelfReadyItemStack(@NonNull String targetPlayerName, int remaining) {
         List<Component> lore;
-        if (remaining < 6) {
+        if (remaining == 7) {
+            lore = MessageAssets.MENU_STATE_OPTION_LORE_SELF_NOT_DONE.buildMany();
+        } else {
             lore = MessageAssets.replace(
                     MessageAssets.MENU_STATE_OPTION_LORE_SELF_DONE.buildMany(),
                     remaining > 0
                             ? MessageAssets.MENU_STATE_OPTION_LORE_SELF_DONE_COUNTDOWN.buildMany(remaining + (remaining == 1 ? " segundo" : " segundos"))
                             : MessageAssets.MENU_STATE_OPTION_LORE_SELF_DONE_WAITING.buildMany(targetPlayerName)
             );
-        } else {
-            lore = MessageAssets.MENU_STATE_OPTION_LORE_SELF_NOT_DONE.buildMany();
         }
 
-        return ItemBuilder.from(remaining == 6 ? Material.RED_CONCRETE : Material.GREEN_CONCRETE)
+        return ItemBuilder.from(remaining == 7 ? Material.RED_CONCRETE : Material.GREEN_CONCRETE)
                 .name(MessageAssets.internal("menu.state_option.display_name." + (remaining < 6 ? "self_done" : "self_not_done")))
                 .lore(lore)
                 .build();

@@ -21,7 +21,7 @@ public final class Trade extends JavaPlugin {
     private static final int[] GLASS_SLOT = new int[]{
             0,1,2,3,4,5,6,7,8,
             11,13,15,
-            20,21,23,24,
+            20,21,22,23,24,
             30,31,32,
             40,
             49
@@ -61,7 +61,7 @@ public final class Trade extends JavaPlugin {
         gui.setItem(
                 12,
                 new GuiItem(
-                        TradeReadyUseCase.getSelfReadyItemStack(receptorName, 6),
+                        TradeReadyUseCase.getSelfReadyItemStack(receptorName, 7),
                         clickEvent -> {
                             if (transaction.isCancelled() || transaction.isEnded()) {
                                 clickEvent.setCancelled(true);

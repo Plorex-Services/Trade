@@ -11,6 +11,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.logging.Logger;
@@ -31,10 +32,12 @@ public final class TradeClickEventUseCase extends SynchronizeUseCase {
             throw new IllegalStateException("Trying to handle a click outside of an inventory.");
         }
 
-        if (clickedInventory.getType().equals(InventoryType.PLAYER)) return false;
+        if (clickedInventory.getType().equals(InventoryType.PLAYER) && !clickEvent.isShiftClick()) return false;
+
+        boolean shiftClick = clickEvent.isShiftClick() && clickedInventory.getType().equals(InventoryType.PLAYER);
 
         // Cancel the event if the clicked slot is not part of the viewer slots
-        if (Arrays.stream(Trade.VIEWER_SLOT).noneMatch(slot -> slot == clickEvent.getSlot())) return true;
+        if (!shiftClick && Arrays.stream(Trade.VIEWER_SLOT).noneMatch(slot -> slot == clickEvent.getSlot())) return true;
 
         Transaction transaction = this.transactionRegistry.findByPlayer(player.getUniqueId());
         if (transaction == null) {
@@ -52,19 +55,61 @@ public final class TradeClickEventUseCase extends SynchronizeUseCase {
 
         transaction.setClickedValue(player.getUniqueId(), true);
 
+        Inventory destinationInventory = clickEvent.getView().getTopInventory();
+
+        // If is a shift click, we handle the item stack movement
+        // and set the current item to the result of that operation.
+        // Otherwise, we just let the click event proceed normally.
+        if (shiftClick) {
+            clickEvent.setCurrentItem(this.handleShiftClick(
+                    destinationInventory,
+                    clickEvent.getCurrentItem()
+            ));
+
+            clickEvent.setCancelled(true);
+        }
+
         // This will help to compare the difference of contents before and after the click
         // to know the items that were moved or changed.
-        ItemStack[] oldContents = clickedInventory.getContents();
+        ItemStack[] oldContents = destinationInventory.getContents();
         Bukkit.getScheduler().runTask(
                 Trade.getPlugin(Trade.class),
                 () -> {
                     // Synchronize the inventories of the player and the transaction
-                    this.synchronize(player, transaction, oldContents, clickedInventory);
+                    this.synchronize(player, transaction, oldContents, destinationInventory);
 
                     transaction.setClickedValue(player.getUniqueId(), false);
                 }
         );
 
         return false;
+    }
+
+    private @Nullable ItemStack handleShiftClick(@NonNull Inventory destinationInventory, @Nullable ItemStack itemStack) {
+        if (itemStack == null || itemStack.isEmpty()) return null;
+
+        for (int viewerSlot : Trade.VIEWER_SLOT) {
+            ItemStack itemStackAt = destinationInventory.getItem(viewerSlot);
+            if (itemStackAt == null || itemStackAt.isEmpty()) {
+                destinationInventory.setItem(viewerSlot, itemStack);
+                return null; // Item has been added to an empty slot
+            }
+
+            if (!itemStackAt.isSimilar(itemStack)) continue;
+
+            int spaceLeft = itemStackAt.getMaxStackSize() - itemStackAt.getAmount();
+            if (spaceLeft <= 0) continue;
+
+            int toAdd = Math.min(spaceLeft, itemStack.getAmount());
+            itemStackAt.setAmount(itemStackAt.getAmount() + toAdd);
+            itemStack.setAmount(itemStack.getAmount() - toAdd);
+
+            destinationInventory.setItem(viewerSlot, itemStackAt);
+
+            if (itemStack.getAmount() <= 0) return null; // All items have been added
+        }
+
+        // If we reach here, it means there are still items left to add
+        return itemStack; // Return the remaining items that could not be added
     }
 }

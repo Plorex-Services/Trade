@@ -81,7 +81,7 @@ abstract class SynchronizeUseCase extends TradeUseCase {
         // After synchronizing the inventories, we're going to compare the contents
         // to see if there was any change and where it was made.
         ItemStack[] newContents = from.getContents();
-        for (int i = 0; i < newContents.length; i++) {
+        for (int i = 0; i < newContents.length - 1; i++) {
             ItemStack newItem = newContents[i];
             ItemStack oldItem = oldContents[i];
 
