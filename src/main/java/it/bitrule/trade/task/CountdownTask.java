@@ -6,6 +6,7 @@ import it.bitrule.trade.component.Transaction;
 import it.bitrule.trade.usecase.TradeMenuUseCase;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.bson.Document;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -69,6 +70,8 @@ public final class CountdownTask extends BukkitRunnable {
         }
 
         if (remaining > 0) return;
+
+        this.cancel();
 
         // TODO: Submit the end use case and after that, close the menu for each player.
     }

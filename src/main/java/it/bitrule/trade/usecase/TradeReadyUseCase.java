@@ -1,5 +1,6 @@
 package it.bitrule.trade.usecase;
 
+import it.bitrule.trade.MessageAssets;
 import it.bitrule.trade.Trade;
 import it.bitrule.trade.component.Transaction;
 import it.bitrule.trade.registry.RequestsRegistry;
@@ -47,12 +48,28 @@ public final class TradeReadyUseCase extends TradeUseCase {
         Player recipient = Bukkit.getPlayer(recipientId);
         if (recipient == null || !recipient.isOnline()) return;
 
+        MessageAssets recipientMessageAsset;
+        MessageAssets senderMessageAsset;
+        if (transaction.getReadyState(player.getUniqueId())) {
+            recipientMessageAsset = MessageAssets.TRANSACTION_IS_READY;
+            senderMessageAsset = MessageAssets.TRANSACTION_READY;
+        } else {
+            recipientMessageAsset = MessageAssets.TRANSACTION_IS_NO_LONGER_READY;
+            senderMessageAsset = MessageAssets.TRANSACTION_NO_LONGER_READY;
+        }
+
+        recipient.sendMessage(recipientMessageAsset.build(player.getName()));
+        player.sendMessage(senderMessageAsset.build(recipient.getName()));
+
         BukkitRunnable countdownTask = transaction.getBukkitRunnable();
         if (countdownTask != null && !countdownTask.isCancelled()) {
             transaction.setBukkitRunnable(null);
             countdownTask.cancel();
             return;
         }
+
+        // If either player is not ready, we do not start the countdown
+        if (!transaction.isSenderReady() || !transaction.isReceptorReady()) return;
 
         countdownTask = new CountdownTask(new AtomicInteger(5), transaction, new Player[]{player, recipient});
         countdownTask.runTaskTimer(JavaPlugin.getProvidingPlugin(Trade.class), 0L, 20L);
