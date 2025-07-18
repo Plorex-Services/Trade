@@ -12,7 +12,7 @@ sender_already_trading: "<red>Ya estás comerciando con alguien mas.</red>"
 receptor_already_trading: "<red>El jugador %player% ya está comerciando con alguien más.</red>"
 
 sender_already_sent_request: "<red>Ya le has enviado una solicitud de comercio al jugador %player%.</red>"
-receptor_already_sent_request: "<red>El jugador %player% ya te ha enviado una solicitud de comercio.</red> <gold>Utiliza <green>/trade accept %target%</green> para aceptar su solicitud.</gold>"
+receptor_already_sent_request: "<red>El jugador %player% ya te ha enviado una solicitud de comercio.</red> <yellow>Utiliza <green>/trade accept %player%</green> para aceptar su solicitud.</yellow>"
 
 request_sent: "<trade_prefix><white>Has <dark_green>enviado</dark_green> una solicitud de comercio a <yellow>%player%</yellow>.</white>"
 request_received:
@@ -20,7 +20,9 @@ request_received:
     - "<trade_prefix><white>El jugador <dark_green>%player%</dark_green> quiere intercambiar contigo.</white>"
     - "  <dark_gray>[</dark_gray>%accept% <dark_gray>|</dark_gray> %deny%<dark_gray>]</dark_gray>"
   accept_prompt: "<green>Aceptar</green>"
+  accept_hover: "<gray>Haz click para aceptar la solicitud de comercio.</gray>"
   deny_prompt: "<red>Rechazar</red>"
+  deny_hover: "<gray>Haz click para rechazar la solicitud de comercio.</gray>"
 
 no_request_found: "<red>No se ha encontrado ninguna solicitud de comercio pendiente con el jugador %player%.</red>"
 request_accepted: "<trade_prefix><white>Has <dark_green>aceptado</dark_green> la petición de intercambio con <yellow>%player%</yellow>.</white>"

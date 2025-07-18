@@ -5,10 +5,9 @@ import dev.triumphteam.gui.guis.Gui;
 import dev.triumphteam.gui.guis.GuiItem;
 import it.bitrule.trade.component.Transaction;
 import it.bitrule.trade.manager.TradeManager;
-import it.bitrule.trade.usecase.TradeMenuUseCase;
+import it.bitrule.trade.usecase.TradeReadyUseCase;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -62,7 +61,7 @@ public final class Trade extends JavaPlugin {
         gui.setItem(
                 12,
                 new GuiItem(
-                        TradeMenuUseCase.getSelfReadyItemStack(receptorName, 6),
+                        TradeReadyUseCase.getSelfReadyItemStack(receptorName, 6),
                         clickEvent -> {
                             if (transaction.isCancelled() || transaction.isEnded()) {
                                 clickEvent.setCancelled(true);
@@ -72,24 +71,12 @@ public final class Trade extends JavaPlugin {
                         })
         );
 
-        boolean isRecipientDone = player.getUniqueId().equals(transaction.getSender()) ? transaction.isReceptorReady() : transaction.isSenderReady();
-
-        MessageAssets otherDoneDisplayName = isRecipientDone
-                ? MessageAssets.MENU_STATE_OPTION_DISPLAY_NAME_OTHER_DONE
-                : MessageAssets.MENU_STATE_OPTION_DISPLAY_NAME_OTHER_NOT_DONE;
-        MessageAssets otherDoneLore = isRecipientDone
-                ? MessageAssets.MENU_STATE_OPTION_LORE_OTHER_DONE
-                : MessageAssets.MENU_STATE_OPTION_LORE_OTHER_NOT_DONE;
-
         gui.setItem(
                 14,
-                ItemBuilder.from(isRecipientDone ? Material.GREEN_CONCRETE : Material.RED_CONCRETE)
-                        .name(otherDoneDisplayName.build(receptorName).decoration(TextDecoration.ITALIC, false))
-                        .lore(otherDoneLore.buildMany(receptorName).stream()
-                                .map(line -> line.decoration(TextDecoration.ITALIC, false))
-                                .collect(java.util.stream.Collectors.toList())
-                        )
-                        .asGuiItem()
+                new GuiItem(TradeReadyUseCase.getOtherReadyItemStack(
+                        receptorName,
+                        player.getUniqueId().equals(transaction.getSender()) ? transaction.isReceptorReady() : transaction.isSenderReady())
+                )
         );
 
         gui.setDefaultClickAction(TradeManager.getInstance()::clickEvent);

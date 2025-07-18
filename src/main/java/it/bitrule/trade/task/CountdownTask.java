@@ -3,10 +3,9 @@ package it.bitrule.trade.task;
 import dev.triumphteam.gui.guis.BaseGui;
 import it.bitrule.trade.MessageAssets;
 import it.bitrule.trade.component.Transaction;
-import it.bitrule.trade.usecase.TradeMenuUseCase;
+import it.bitrule.trade.usecase.TradeReadyUseCase;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.bson.Document;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -63,7 +62,7 @@ public final class CountdownTask extends BukkitRunnable {
 
             inv.setItem(
                     12,
-                    TradeMenuUseCase.getSelfReadyItemStack(recipientName, remaining)
+                    TradeReadyUseCase.getSelfReadyItemStack(recipientName, remaining)
             );
 
             index++;
