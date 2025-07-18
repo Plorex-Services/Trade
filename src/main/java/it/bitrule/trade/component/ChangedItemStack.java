@@ -1,8 +1,8 @@
 package it.bitrule.trade.component;
 
-import com.google.gson.JsonObject;
 import lombok.NonNull;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.bson.Document;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
@@ -22,15 +22,7 @@ public record ChangedItemStack(
         @NonNull ChangeType changeType
 ) {
 
-    public @NonNull Log asLog(int id) {
-        int oldAmount = this.oldItemStack != null ? this.oldItemStack.getAmount() : 0;
-        int newAmount = this.newItemStack != null ? this.newItemStack.getAmount() : 0;
-
-        int differenceAmount = newAmount - oldAmount;
-
-        JsonObject body = new JsonObject();
-        body.addProperty("slot", this.slot);
-
+    public @NonNull Document asDocument(int id) {
         StringBuilder builder = new StringBuilder(this.playerName).append(" ");
         if (this.changeType == ChangeType.ADD) {
             builder.append("added ");
@@ -39,6 +31,11 @@ public record ChangedItemStack(
         } else if (this.changeType == ChangeType.CHANGE) {
             builder.append("changed ");
         }
+
+        int oldAmount = this.oldItemStack != null ? this.oldItemStack.getAmount() : 0;
+        int newAmount = this.newItemStack != null ? this.newItemStack.getAmount() : 0;
+
+        int differenceAmount = newAmount - oldAmount;
 
         builder.append("an item stack in slot ")
                 .append(this.slot)
@@ -68,7 +65,7 @@ public record ChangedItemStack(
                 .append(differenceAmount)
                 .append("]");
 
-        return new Log(id, builder.toString());
+        return new Document("id", id).append("message", builder.toString());
     }
 
     public enum ChangeType {

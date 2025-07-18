@@ -116,7 +116,7 @@ abstract class SynchronizeUseCase extends TradeUseCase {
         }
 
         for (ChangedItemStack changedItem : changedItems) {
-            transaction.getLogs().add(changedItem.asLog(transaction.getLogs().size() + 1));
+            transaction.getLogs().add(changedItem.asDocument(transaction.getLogs().size() + 1));
         }
     }
 

@@ -2,6 +2,7 @@ package it.bitrule.trade.component;
 
 import lombok.Data;
 import lombok.NonNull;
+import org.bson.Document;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.Nullable;
 
@@ -63,7 +64,7 @@ public final class Transaction {
     /**
      * This is the list of logs that are associated with the transaction.
      */
-    private final @NonNull List<Log> logs = new LinkedList<>();
+    private final @NonNull List<Document> logs = new LinkedList<>();
 
     /**
      * Returns the reader state of the player in the transaction.
