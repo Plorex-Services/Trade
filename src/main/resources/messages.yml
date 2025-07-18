@@ -28,6 +28,9 @@ no_request_found: "<red>No se ha encontrado ninguna solicitud de comercio pendie
 request_accepted: "<trade_prefix><white>Has <dark_green>aceptado</dark_green> la petición de intercambio con <yellow>%player%</yellow>.</white>"
 request_was_accepted: "<trade_prefix><white>La petición de intercambio enviada a <yellow>%player%</yellow> fue <dark_green>aceptada</dark_green>.</white>"
 
+request_denied: "<trade_prefix><white>Has <dark_red>rechazado</dark_red> la solicitud de comercio con <yellow>%player%</yellow>.</white>"
+request_was_denied: "<trade_prefix><white>El jugador <yellow>%player%</yellow> ha <dark_red>rechazado</dark_red> la solicitud de comercio.</white>"
+
 transaction_cancelled: "<trade_prefix><white>La transacción de comercio con <yellow>%player%</yellow> ha sido <dark_red>cancelada</dark_red>.</white>"
 transaction_was_cancelled: "<trade_prefix><yellow>%player%</yellow> <white>ha <dark_red>cancelado</dark_red> la transacción de comercio.</white>"
 

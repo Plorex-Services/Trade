@@ -36,6 +36,9 @@ public enum MessageAssets {
     REQUEST_ACCEPTED("request_accepted", "player"),
     REQUEST_WAS_ACCEPTED("request_was_accepted", "player"),
 
+    REQUEST_DENIED("request_denied", "player"),
+    REQUEST_WAS_DENIED("request_was_denied", "player"),
+
     TRANSACTION_CANCELLED("transaction_cancelled", "player"),
     TRANSACTION_WAS_CANCELLED("transaction_was_cancelled", "player"),
 
@@ -46,7 +49,6 @@ public enum MessageAssets {
 
     TRANSACTION_ENDING_COUNTDOWN("transaction_ending_countdown", "player", "remaining"),
     TRANSACTION_ENDED("transaction_ended", "player"),
-
 
     MENU_TITLE("menu.title", "player"),
 

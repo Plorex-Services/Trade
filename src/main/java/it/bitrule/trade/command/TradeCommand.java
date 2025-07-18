@@ -41,7 +41,9 @@ public final class TradeCommand extends Command {
             return true;
         }
 
-        if (args[0].equals("accept")) {
+        if (args[0].equals("deny")) {
+            TradeManager.getInstance().deny((Player) sender, args.length > 1 ? args[1] : "");
+        } else if (args[0].equals("accept")) {
             TradeManager.getInstance().accept((Player) sender, args.length > 1 ? args[1] : "");
         } else {
             TradeManager.getInstance().request((Player) sender, args[0]);

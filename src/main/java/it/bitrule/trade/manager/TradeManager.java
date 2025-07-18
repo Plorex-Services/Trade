@@ -50,6 +50,13 @@ public final class TradeManager {
     private @Nullable TradeAcceptUseCase acceptUseCase;
     /**
      * This is the use case that handles the logic when a
+     * player denies a trade request.
+     * It will check if the command executor has a pending trade request
+     * from the recipient player.
+     */
+    private @Nullable TradeDenyUseCase denyUseCase;
+    /**
+     * This is the use case that handles the logic when a
      * player is ready to complete the trade. If both players
      * are ready, it will start a countdown to complete the trade.
      */
@@ -88,9 +95,12 @@ public final class TradeManager {
 
         this.requestUseCase = new TradeRequestUseCase(transactionRegistry, requestsRegistry, plugin.getLogger());
         this.acceptUseCase = new TradeAcceptUseCase(transactionRegistry, requestsRegistry, plugin.getLogger());
+        this.denyUseCase = new TradeDenyUseCase(transactionRegistry, requestsRegistry, plugin.getLogger());
+
         this.readyUseCase = new TradeReadyUseCase(transactionRegistry, requestsRegistry, plugin.getLogger());
         this.endUseCase = new TradeEndUseCase(transactionRegistry, requestsRegistry, plugin.getLogger());
         this.cancelUseCase = new TradeCancelUseCase(transactionRegistry, requestsRegistry, plugin.getLogger());
+
         this.dragEventUseCase = new TradeDragEventUseCase(transactionRegistry, requestsRegistry, plugin.getLogger());
         this.clickEventUseCase = new TradeClickEventUseCase(transactionRegistry, requestsRegistry, plugin.getLogger());
     }
@@ -128,6 +138,19 @@ public final class TradeManager {
         } catch (Exception ex) {
             // Handle the exception
             this.handleException(player, ex);
+        }
+    }
+
+    public void deny(@NonNull Player sender, @NonNull String recipientName) {
+        try {
+            if (this.denyUseCase == null) {
+                throw new IllegalStateException("TradeDenyUseCase is not initialized.");
+            }
+
+            this.denyUseCase.submit(sender, recipientName);
+        } catch (Exception ex) {
+            // Handle the exception
+            this.handleException(sender, ex);
         }
     }
 
