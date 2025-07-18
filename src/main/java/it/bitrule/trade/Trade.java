@@ -60,15 +60,7 @@ public final class Trade extends JavaPlugin {
 
         gui.setItem(
                 12,
-                new GuiItem(
-                        TradeReadyUseCase.getSelfReadyItemStack(receptorName, 7),
-                        clickEvent -> {
-                            if (transaction.isCancelled() || transaction.isEnded()) {
-                                clickEvent.setCancelled(true);
-                            } else {
-                                TradeManager.getInstance().ready(player);
-                            }
-                        })
+                TradeReadyUseCase.getSelfReadyItemStack(player, receptorName, 7)
         );
 
         gui.setItem(

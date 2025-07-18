@@ -61,9 +61,9 @@ public final class CountdownTask extends BukkitRunnable {
                     )
             );
 
-            inv.setItem(
+            ((BaseGui) inv.getHolder()).updateItem(
                     12,
-                    TradeReadyUseCase.getSelfReadyItemStack(recipientName, remaining)
+                    TradeReadyUseCase.getSelfReadyItemStack(player, recipientName, remaining)
             );
 
             index++;

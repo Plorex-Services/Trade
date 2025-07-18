@@ -60,7 +60,7 @@ public final class TradeCancelUseCase extends TradeUseCase {
         // After marking the transaction as cancelled and resetting the done flags,
         // we need to give back the items to the players involved in the trade.
         // Then we can remove the transaction from the registry.
-        this.giveBackItems(player, closingInventory);
+        giveBackItems(player, closingInventory);
 
         // Search the id of the other player involved in the trade.
         // If the player is the sender, the recipient is the receptor, and vice versa.
@@ -70,7 +70,6 @@ public final class TradeCancelUseCase extends TradeUseCase {
         } else {
             recipientId = transaction.getSender();
         }
-
 
         BukkitRunnable bukkitRunnable = transaction.getBukkitRunnable();
         boolean cancelledRunnable = bukkitRunnable != null && !bukkitRunnable.isCancelled();

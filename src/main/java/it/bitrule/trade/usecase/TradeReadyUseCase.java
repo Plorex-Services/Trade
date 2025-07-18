@@ -2,9 +2,11 @@ package it.bitrule.trade.usecase;
 
 import dev.triumphteam.gui.builder.item.ItemBuilder;
 import dev.triumphteam.gui.guis.BaseGui;
+import dev.triumphteam.gui.guis.GuiItem;
 import it.bitrule.trade.MessageAssets;
 import it.bitrule.trade.Trade;
 import it.bitrule.trade.component.Transaction;
+import it.bitrule.trade.manager.TradeManager;
 import it.bitrule.trade.registry.RequestsRegistry;
 import it.bitrule.trade.registry.TransactionRegistry;
 import it.bitrule.trade.task.CountdownTask;
@@ -20,6 +22,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
@@ -53,8 +56,9 @@ public final class TradeReadyUseCase extends TradeUseCase {
             throw new IllegalStateException("Transaction for player " + player.getName() + " has been cancelled.");
         }
 
-        UUID recipientId;
+        if (transaction.isEnded()) return;
 
+        UUID recipientId;
         if (transaction.getSender().equals(player.getUniqueId())) {
             transaction.setSenderReady(!transaction.isSenderReady());
             recipientId = transaction.getReceptor();
@@ -80,10 +84,11 @@ public final class TradeReadyUseCase extends TradeUseCase {
         player.sendMessage(senderMessageAsset.build(recipient.getName()));
 
         boolean executorReadyState = transaction.getReadyState(player.getUniqueId());
-        INVENTORY_WRAPPER.apply(player).setItem(
-                12,
-                getSelfReadyItemStack(recipient.getName(), executorReadyState ? 5 : 7)
-        );
+
+        Optional.of(INVENTORY_WRAPPER.apply(player))
+                .map(inv -> (BaseGui) inv.getHolder())
+                .ifPresent(gui -> gui.updateItem(12, getSelfReadyItemStack(player, recipient.getName(), executorReadyState ? 5 : 7)));
+
         INVENTORY_WRAPPER.apply(recipient).setItem(
                 14,
                 getOtherReadyItemStack(player.getName(), executorReadyState)
@@ -102,16 +107,9 @@ public final class TradeReadyUseCase extends TradeUseCase {
         countdownTask = new CountdownTask(new AtomicInteger(5), transaction, new Player[]{player, recipient});
         countdownTask.runTaskTimer(JavaPlugin.getProvidingPlugin(Trade.class), 0L, 20L);
         transaction.setBukkitRunnable(countdownTask);
-
-        for (Player p : new Player[]{player, recipient}) {
-            if (!p.isConnected()) {
-                countdownTask.cancel();
-                return;
-            }
-        }
     }
 
-    public static @NonNull ItemStack getSelfReadyItemStack(@NonNull String targetPlayerName, int remaining) {
+    public static @NonNull GuiItem getSelfReadyItemStack(@NonNull Player player, @NonNull String targetPlayerName, int remaining) {
         List<Component> lore;
         if (remaining == 7) {
             lore = MessageAssets.MENU_STATE_OPTION_LORE_SELF_NOT_DONE.buildMany();
@@ -124,10 +122,16 @@ public final class TradeReadyUseCase extends TradeUseCase {
             );
         }
 
-        return ItemBuilder.from(remaining == 7 ? Material.RED_CONCRETE : Material.GREEN_CONCRETE)
-                .name(MessageAssets.internal("menu.state_option.display_name." + (remaining < 6 ? "self_done" : "self_not_done")))
-                .lore(lore)
-                .build();
+        return new GuiItem(
+                ItemBuilder.from(remaining == 7 ? Material.RED_CONCRETE : Material.GREEN_CONCRETE)
+                        .name(MessageAssets.internal("menu.state_option.display_name." + (remaining < 6 ? "self_done" : "self_not_done")))
+                        .lore(lore)
+                        .build(),
+                clickEvent -> {
+                    clickEvent.setCancelled(true);
+
+                    TradeManager.getInstance().ready(player);
+                });
     }
 
     public static @NonNull ItemStack getOtherReadyItemStack(@NonNull String targetPlayerName, boolean isDone) {
