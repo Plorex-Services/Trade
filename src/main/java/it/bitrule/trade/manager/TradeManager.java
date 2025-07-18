@@ -1,5 +1,6 @@
 package it.bitrule.trade.manager;
 
+import com.mongodb.client.MongoClients;
 import it.bitrule.trade.Trade;
 import it.bitrule.trade.command.TradeCommand;
 import it.bitrule.trade.listener.InventoryCloseListener;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.Configuration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
@@ -86,6 +88,23 @@ public final class TradeManager {
     private @Nullable TradeClickEventUseCase clickEventUseCase;
 
     public void inject(@NonNull final JavaPlugin plugin) {
+        Configuration configuration = plugin.getConfig();
+
+        String mongoUri = configuration.getString("mongo-uri");
+        if (mongoUri == null || mongoUri.isEmpty()) {
+            throw new IllegalArgumentException("Mongo URI is not configured in the plugin's config file.");
+        }
+
+        String mongoDatabase = configuration.getString("mongo-database");
+        if (mongoDatabase == null || mongoDatabase.isEmpty()) {
+            throw new IllegalArgumentException("Mongo database is not configured in the plugin's config file.");
+        }
+
+        String mongoCollection = configuration.getString("mongo-collection");
+        if (mongoCollection == null || mongoCollection.isEmpty()) {
+            throw new IllegalArgumentException("Mongo collection is not configured in the plugin's config file.");
+        }
+
         TransactionRegistry transactionRegistry = new TransactionRegistry();
         RequestsRegistry requestsRegistry = new RequestsRegistry();
         Bukkit.getPluginManager().registerEvents(new PlayerQuitListener(requestsRegistry), plugin);
@@ -98,7 +117,14 @@ public final class TradeManager {
         this.denyUseCase = new TradeDenyUseCase(transactionRegistry, requestsRegistry, plugin.getLogger());
 
         this.readyUseCase = new TradeReadyUseCase(transactionRegistry, requestsRegistry, plugin.getLogger());
-        this.endUseCase = new TradeEndUseCase(transactionRegistry, requestsRegistry, plugin.getLogger());
+        this.endUseCase = new TradeEndUseCase(
+                MongoClients.create(mongoUri)
+                        .getDatabase(mongoDatabase)
+                        .getCollection(mongoCollection),
+                transactionRegistry,
+                requestsRegistry,
+                plugin.getLogger()
+        );
         this.cancelUseCase = new TradeCancelUseCase(transactionRegistry, requestsRegistry, plugin.getLogger());
 
         this.dragEventUseCase = new TradeDragEventUseCase(transactionRegistry, requestsRegistry, plugin.getLogger());
