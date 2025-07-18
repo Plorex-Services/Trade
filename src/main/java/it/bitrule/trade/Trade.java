@@ -3,24 +3,15 @@ package it.bitrule.trade;
 import dev.triumphteam.gui.builder.item.ItemBuilder;
 import dev.triumphteam.gui.guis.Gui;
 import dev.triumphteam.gui.guis.GuiItem;
-import it.bitrule.trade.command.TradeCommand;
 import it.bitrule.trade.component.Transaction;
-import it.bitrule.trade.listener.InventoryCloseListener;
-import it.bitrule.trade.listener.PlayerQuitListener;
-import it.bitrule.trade.registry.RequestsRegistry;
-import it.bitrule.trade.registry.TransactionRegistry;
-import it.bitrule.trade.usecase.TradeAcceptUseCase;
-import it.bitrule.trade.usecase.TradeCancelUseCase;
-import it.bitrule.trade.usecase.TradeMenuUseCase;
-import it.bitrule.trade.usecase.TradeRequestUseCase;
+import it.bitrule.trade.manager.TradeManager;
+import it.bitrule.trade.usecase.TradeReadyUseCase;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.*;
@@ -30,7 +21,7 @@ public final class Trade extends JavaPlugin {
     private static final int[] GLASS_SLOT = new int[]{
             0,1,2,3,4,5,6,7,8,
             11,13,15,
-            20,21,23,24,
+            20,21,22,23,24,
             30,31,32,
             40,
             49
@@ -44,31 +35,12 @@ public final class Trade extends JavaPlugin {
             45,46,47,48
     };
 
-    private static @Nullable TradeMenuUseCase menuUseCase;
-
     public void onEnable() {
         this.saveResource("messages.yml", true);
 
         MessageAssets.adjustInternal(YamlConfiguration.loadConfiguration(new File(this.getDataFolder(), "messages.yml")));
 
-        TransactionRegistry transactionRegistry = new TransactionRegistry();
-        RequestsRegistry requestsRegistry = new RequestsRegistry();
-
-        menuUseCase = new TradeMenuUseCase(transactionRegistry, requestsRegistry, this.getLogger());
-
-        this.getServer().getPluginManager().registerEvents(new PlayerQuitListener(requestsRegistry), this);
-        this.getServer().getPluginManager().registerEvents(
-                new InventoryCloseListener(new TradeCancelUseCase(transactionRegistry, requestsRegistry, this.getLogger())),
-                this
-        );
-
-        this.getServer().getCommandMap().register(
-                "trade",
-                new TradeCommand(
-                        new TradeRequestUseCase(transactionRegistry, requestsRegistry, this.getLogger()),
-                        new TradeAcceptUseCase(transactionRegistry, requestsRegistry, this.getLogger())
-                )
-        );
+        TradeManager.getInstance().inject(this);
     }
 
     public static void showGui(@NonNull Player player, @NonNull Transaction transaction, @NonNull String receptorName) {
@@ -88,52 +60,19 @@ public final class Trade extends JavaPlugin {
 
         gui.setItem(
                 12,
-                new GuiItem(
-                        TradeMenuUseCase.getSelfReadyItemStack(receptorName, 6),
-                        clickEvent -> {
-                            if (transaction.isCancelled() || transaction.isEnded()) {
-                                clickEvent.setCancelled(true);
-                            } else if (menuUseCase != null) {
-                                menuUseCase.executeReady(player, transaction);
-                            }
-                        })
+                TradeReadyUseCase.getSelfReadyItemStack(player, receptorName, 7)
         );
-
-        boolean isRecipientDone = player.getUniqueId().equals(transaction.getSender()) ? transaction.isReceptorReady() : transaction.isSenderReady();
-
-        MessageAssets otherDoneDisplayName = isRecipientDone
-                ? MessageAssets.MENU_STATE_OPTION_DISPLAY_NAME_OTHER_DONE
-                : MessageAssets.MENU_STATE_OPTION_DISPLAY_NAME_OTHER_NOT_DONE;
-        MessageAssets otherDoneLore = isRecipientDone
-                ? MessageAssets.MENU_STATE_OPTION_LORE_OTHER_DONE
-                : MessageAssets.MENU_STATE_OPTION_LORE_OTHER_NOT_DONE;
 
         gui.setItem(
                 14,
-                ItemBuilder.from(isRecipientDone ? Material.GREEN_CONCRETE : Material.RED_CONCRETE)
-                        .name(otherDoneDisplayName.build(receptorName).decoration(TextDecoration.ITALIC, false))
-                        .lore(otherDoneLore.buildMany(receptorName).stream()
-                                .map(line -> line.decoration(TextDecoration.ITALIC, false))
-                                .collect(java.util.stream.Collectors.toList())
-                        )
-                        .asGuiItem()
+                new GuiItem(TradeReadyUseCase.getOtherReadyItemStack(
+                        receptorName,
+                        player.getUniqueId().equals(transaction.getSender()) ? transaction.isReceptorReady() : transaction.isSenderReady())
+                )
         );
 
-        gui.setDragAction(dragEvent -> {
-            if (menuUseCase == null) {
-                throw new IllegalStateException("TradeMenuUseCase is not initialized. Please call showGui() method first.");
-            }
-
-            menuUseCase.executeDragEvent(player, transaction, dragEvent);
-        });
-
-        gui.setDefaultClickAction(clickEvent -> {
-            if (menuUseCase == null) {
-                throw new IllegalStateException("TradeMenuUseCase is not initialized. Please call showGui() method first.");
-            }
-
-            menuUseCase.executeClickEvent(player, transaction, clickEvent);
-        });
+        gui.setDefaultClickAction(TradeManager.getInstance()::clickEvent);
+        gui.setDragAction(TradeManager.getInstance()::dragEvent);
 
         gui.open(player);
     }

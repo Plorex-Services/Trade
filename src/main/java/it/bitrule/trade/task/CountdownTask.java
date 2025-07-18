@@ -3,7 +3,8 @@ package it.bitrule.trade.task;
 import dev.triumphteam.gui.guis.BaseGui;
 import it.bitrule.trade.MessageAssets;
 import it.bitrule.trade.component.Transaction;
-import it.bitrule.trade.usecase.TradeMenuUseCase;
+import it.bitrule.trade.manager.TradeManager;
+import it.bitrule.trade.usecase.TradeReadyUseCase;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.entity.Player;
@@ -54,15 +55,15 @@ public final class CountdownTask extends BukkitRunnable {
 
             String recipientName = this.players[index == 0 ? 1 : 0].getName();
             player.sendMessage(
-                    MessageAssets.ENDING_COUNTDOWN.build(
+                    MessageAssets.TRANSACTION_ENDING_COUNTDOWN.build(
                             recipientName,
                             remaining > 1 ? remaining + " segundos" : "1 segundo"
                     )
             );
 
-            inv.setItem(
+            ((BaseGui) inv.getHolder()).updateItem(
                     12,
-                    TradeMenuUseCase.getSelfReadyItemStack(recipientName, remaining)
+                    TradeReadyUseCase.getSelfReadyItemStack(player, recipientName, remaining)
             );
 
             index++;
@@ -70,6 +71,8 @@ public final class CountdownTask extends BukkitRunnable {
 
         if (remaining > 0) return;
 
-        // TODO: Submit the end use case and after that, close the menu for each player.
+        TradeManager.getInstance().end(this.players, this.transaction.getId());
+
+        this.cancel();
     }
 }

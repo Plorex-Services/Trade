@@ -60,7 +60,7 @@ public final class TradeCancelUseCase extends TradeUseCase {
         // After marking the transaction as cancelled and resetting the done flags,
         // we need to give back the items to the players involved in the trade.
         // Then we can remove the transaction from the registry.
-        this.giveBackItems(player, closingInventory);
+        giveBackItems(player, closingInventory);
 
         // Search the id of the other player involved in the trade.
         // If the player is the sender, the recipient is the receptor, and vice versa.
@@ -70,7 +70,6 @@ public final class TradeCancelUseCase extends TradeUseCase {
         } else {
             recipientId = transaction.getSender();
         }
-
 
         BukkitRunnable bukkitRunnable = transaction.getBukkitRunnable();
         boolean cancelledRunnable = bukkitRunnable != null && !bukkitRunnable.isCancelled();
@@ -99,7 +98,7 @@ public final class TradeCancelUseCase extends TradeUseCase {
         Inventory recipientInventory = recipient.getOpenInventory().getTopInventory();
         if (!(recipientInventory.getHolder() instanceof BaseGui)) return;
 
-        this.giveBackItems(recipient, recipientInventory);
+        giveBackItems(recipient, recipientInventory);
 
         if (recipientInventory.close() == 0) {
             this.logger.warning("[Receptor - Trade] Unexpected behavior... Nobody was viewing the inventory of " + recipient.getName());
@@ -108,7 +107,7 @@ public final class TradeCancelUseCase extends TradeUseCase {
         }
     }
 
-    private void giveBackItems(@NonNull Player player, @NonNull Inventory inventory) {
+    public static void giveBackItems(@NonNull Player player, @NonNull Inventory inventory) {
         for (int slot : Trade.VIEWER_SLOT) {
             ItemStack itemStack = inventory.getItem(slot);
             if (itemStack == null || itemStack.isEmpty()) continue;

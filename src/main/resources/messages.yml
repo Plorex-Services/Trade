@@ -12,28 +12,36 @@ sender_already_trading: "<red>Ya estás comerciando con alguien mas.</red>"
 receptor_already_trading: "<red>El jugador %player% ya está comerciando con alguien más.</red>"
 
 sender_already_sent_request: "<red>Ya le has enviado una solicitud de comercio al jugador %player%.</red>"
-receptor_already_sent_request: "<red>El jugador %player% ya te ha enviado una solicitud de comercio.</red> <gold>Utiliza <green>/trade accept %target%</green> para aceptar su solicitud.</gold>"
+receptor_already_sent_request: "<red>El jugador %player% ya te ha enviado una solicitud de comercio.</red> <yellow>Utiliza <green>/trade accept %player%</green> para aceptar su solicitud.</yellow>"
 
 request_sent: "<trade_prefix><white>Has <dark_green>enviado</dark_green> una solicitud de comercio a <yellow>%player%</yellow>.</white>"
 request_received:
   message:
-    - "<trade_prefix><white>El jugador <dark_green>%sender%</dark_green> quiere intercambiar contigo.</white>"
+    - "<trade_prefix><white>El jugador <dark_green>%player%</dark_green> quiere intercambiar contigo.</white>"
     - "  <dark_gray>[</dark_gray>%accept% <dark_gray>|</dark_gray> %deny%<dark_gray>]</dark_gray>"
   accept_prompt: "<green>Aceptar</green>"
+  accept_hover: "<gray>Haz click para aceptar la solicitud de comercio.</gray>"
   deny_prompt: "<red>Rechazar</red>"
+  deny_hover: "<gray>Haz click para rechazar la solicitud de comercio.</gray>"
 
 no_request_found: "<red>No se ha encontrado ninguna solicitud de comercio pendiente con el jugador %player%.</red>"
 request_accepted: "<trade_prefix><white>Has <dark_green>aceptado</dark_green> la petición de intercambio con <yellow>%player%</yellow>.</white>"
 request_was_accepted: "<trade_prefix><white>La petición de intercambio enviada a <yellow>%player%</yellow> fue <dark_green>aceptada</dark_green>.</white>"
 
+request_denied: "<trade_prefix><white>Has <dark_red>rechazado</dark_red> la solicitud de comercio con <yellow>%player%</yellow>.</white>"
+request_was_denied: "<trade_prefix><white>El jugador <yellow>%player%</yellow> ha <dark_red>rechazado</dark_red> la solicitud de comercio.</white>"
+
 transaction_cancelled: "<trade_prefix><white>La transacción de comercio con <yellow>%player%</yellow> ha sido <dark_red>cancelada</dark_red>.</white>"
 transaction_was_cancelled: "<trade_prefix><yellow>%player%</yellow> <white>ha <dark_red>cancelado</dark_red> la transacción de comercio.</white>"
 
-transaction_confirmed: "<trade_prefix><white>El comercio con <yellow>%player%</yellow> ha sido <dark_green>confirmado</dark_green>.</white>"
-transaction_was_confirmed: "<trade_prefix><yellow>%player%</yellow> <white>ha marcado cómo <dark_green>confirmado</dark_green> el comercio.</white>"
+transaction_ready: "<trade_prefix><white>El comercio con <yellow>%player%</yellow> ha sido <dark_green>confirmado</dark_green>.</white>"
+transaction_is_ready: "<trade_prefix><yellow>%player%</yellow> <white>ha marcado cómo <dark_green>confirmado</dark_green> el comercio.</white>"
 
-transaction_completed: "<trade_prefix><white>El comercio con <yellow>%player%</yellow> ha sido <dark_green>completado</dark_green>.</white>"
-ending_countdown: "<trade_prefix><white>El comercio con <yellow>%player%</yellow> se completará en <dark_green>%remaining%</dark_green>.</white>"
+transaction_no_longer_ready: "<trade_prefix><white>El comercio con <yellow>%player%</yellow> ha sido marcado como <dark_red>no confirmado</dark_red>.</white>"
+transaction_is_no_longer_ready: "<trade_prefix><yellow>%player%</yellow> <white>ha marcado cómo <dark_red>no confirmado</dark_red> el comercio.</white>"
+
+transaction_ended: "<trade_prefix><white>El comercio con <yellow>%player%</yellow> ha sido <dark_green>terminado</dark_green>.</white>"
+transaction_ending_countdown: "<trade_prefix><white>El comercio con <yellow>%player%</yellow> se completará en <dark_green>%remaining%</dark_green>.</white>"
 
 menu:
   title: "<dark_gray>Intercambio con <yellow>%player%</yellow></dark_gray>"
