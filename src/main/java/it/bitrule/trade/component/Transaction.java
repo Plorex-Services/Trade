@@ -5,6 +5,8 @@ import lombok.NonNull;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -58,6 +60,10 @@ public final class Transaction {
     private boolean ended = false;
 
     private @Nullable BukkitRunnable bukkitRunnable = null;
+    /**
+     * This is the list of logs that are associated with the transaction.
+     */
+    private final @NonNull List<Log> logs = new LinkedList<>();
 
     /**
      * Returns the reader state of the player in the transaction.

@@ -91,6 +91,7 @@ abstract class SynchronizeUseCase extends TradeUseCase {
             if (oldItem == null) {
                 changedItems.add(new ChangedItemStack(
                         i,
+                        player.getName(),
                         null,
                         newItem,
                         ChangedItemStack.ChangeType.ADD
@@ -98,6 +99,7 @@ abstract class SynchronizeUseCase extends TradeUseCase {
             } else if (newItem == null) { // If newItem is null, it means the item was removed.
                 changedItems.add(new ChangedItemStack(
                         i,
+                        player.getName(),
                         oldItem,
                         null,
                         ChangedItemStack.ChangeType.REMOVE
@@ -105,6 +107,7 @@ abstract class SynchronizeUseCase extends TradeUseCase {
             } else if (!oldItem.equals(newItem)) { // If both items are not null, we check if they are different.
                 changedItems.add(new ChangedItemStack(
                         i,
+                        player.getName(),
                         oldItem,
                         newItem,
                         ChangedItemStack.ChangeType.CHANGE
@@ -112,9 +115,8 @@ abstract class SynchronizeUseCase extends TradeUseCase {
             }
         }
 
-        if (changedItems.isEmpty()) {
-            // If there are no changes, we return early.
-            return;
+        for (ChangedItemStack changedItem : changedItems) {
+            transaction.getLogs().add(changedItem.asLog(transaction.getLogs().size() + 1));
         }
     }
 

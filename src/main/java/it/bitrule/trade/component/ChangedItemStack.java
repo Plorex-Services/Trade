@@ -2,8 +2,12 @@ package it.bitrule.trade.component;
 
 import com.google.gson.JsonObject;
 import lombok.NonNull;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 /**
  * @param slot         The slot index where the item stack was changed.
@@ -12,12 +16,13 @@ import org.jetbrains.annotations.Nullable;
  */
 public record ChangedItemStack(
         int slot,
+        @NonNull String playerName,
         @Nullable ItemStack oldItemStack,
         @Nullable ItemStack newItemStack,
         @NonNull ChangeType changeType
 ) {
 
-    public @NonNull JsonObject body() {
+    public @NonNull Log asLog(int id) {
         int oldAmount = this.oldItemStack != null ? this.oldItemStack.getAmount() : 0;
         int newAmount = this.newItemStack != null ? this.newItemStack.getAmount() : 0;
 
@@ -26,15 +31,44 @@ public record ChangedItemStack(
         JsonObject body = new JsonObject();
         body.addProperty("slot", this.slot);
 
-        body.addProperty("old_item_type", this.oldItemStack != null ? this.oldItemStack.getType().name() : "Unknown");
-        body.addProperty("old_item_amount", oldAmount);
-        body.addProperty("new_item_type", this.newItemStack != null ? this.newItemStack.getType().name() : "Unknown");
-        body.addProperty("new_item_amount", newAmount);
-        body.addProperty("difference_amount", differenceAmount);
+        StringBuilder builder = new StringBuilder(this.playerName).append(" ");
+        if (this.changeType == ChangeType.ADD) {
+            builder.append("added ");
+        } else if (this.changeType == ChangeType.REMOVE) {
+            builder.append("removed ");
+        } else if (this.changeType == ChangeType.CHANGE) {
+            builder.append("changed ");
+        }
 
-        body.addProperty("type", this.changeType.name());
+        builder.append("an item stack in slot ")
+                .append(this.slot)
+                .append(": [Old type=")
+                .append(this.oldItemStack != null ? this.oldItemStack.getType().name() : "Unknown")
+                .append(", Old Display Name=")
+                .append(Optional.ofNullable(this.oldItemStack)
+                        .map(ItemStack::getItemMeta)
+                        .map(ItemMeta::displayName)
+                        .map(displayName -> LegacyComponentSerializer.legacySection().serialize(displayName))
+                        .orElse("None")
+                )
+                .append(", Old amount=")
+                .append(oldAmount)
+                .append(", New type=")
+                .append(this.newItemStack != null ? this.newItemStack.getType().name() : "Unknown")
+                .append(", New Display Name=")
+                .append(Optional.ofNullable(this.newItemStack)
+                        .map(ItemStack::getItemMeta)
+                        .map(ItemMeta::displayName)
+                        .map(displayName -> LegacyComponentSerializer.legacySection().serialize(displayName))
+                        .orElse("None")
+                )
+                .append(", New amount=")
+                .append(newAmount)
+                .append(", Difference amount=")
+                .append(differenceAmount)
+                .append("]");
 
-        return body;
+        return new Log(id, builder.toString());
     }
 
     public enum ChangeType {
